@@ -1,6 +1,7 @@
 # quick-root-plots
 
-This is a collection of scripts (python & bash) allowing for creation of decent quality ROOT plots with a minima amount of typing.
+This is a collection of scripts (python & bash) allowing for creation of decent quality ROOT plots (using ROOT python binding) with a minimal amount of typing.
+Python version 3 is required (tested on 3.9).
 
 ```
 # an example minimal script
@@ -8,17 +9,22 @@ from fast import *
 h = get(_file0, "histoX")
 h = get(_file0, "histoY")
 cnv() # a canvas (can be skipped)
-frame((10, 0, 10), (10, 0, 100)) # define axes ranges (not needed if histograms have reasonable ranges already)
-axis("size []", "count") # label axes (not needed if original histograms have reasonably named axes)
+frame((10, 0, 10), (10, 0, 100)) # define axes ranges (not needed if histograms have reasonable ranges already), but often convenient to use
+axis("size [mm]", "count") # label axes (not needed if original histograms have reasonably named axes)
 
-legend("tr uur") # legend at top right, moved even more slightly up (two quants) and right (one quant)
+legend("tr,uur") # legend at top right, moved even more slightly up (two quants) and right (one quant)
 
 draw(h, "my data X")
-draw(h, "my data Y") # automatically superimposed and changed symbols & colors
+draw(h, "my data Y") # automatically superimposed, changed symbols & colors, and added to the legend
 
-save("comparison") # generates PDF
+save("comparison") # generates PDF comparisons.pdf in "plots" subdir
 ```
-
+See the result of running the [testplot.py](https://github.com/tboldagh/quick-root-plots/blob/main/scripts/testplot.py).
+<object data="https://github.com/tboldagh/quick-root-plots/blob/main/figures/testplot.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="https://github.com/tboldagh/quick-root-plots/blob/main/scripts/testplot.py">
+        <p>No PDF support? <a href="https://github.com/tboldagh/quick-root-plots/blob/main/scripts/testplot.py">Download PDF</a>.</p>
+    </embed>
+</object>
 
 ## What functionality is included
 * getting the histograms with `get` (third argument can be used to provide a specimen histogram)
@@ -97,6 +103,6 @@ That is, it will not catch typos for you!
 # Installation
 Not really needed, just make the directory where the python scripts reside (i.e. fast part of you PYTHONPATH).
 
-#TODO
+# TODO
 * expand move directives for other elements of the plot
-* a few more styles maybe (like journal)?
+* a few more styles (like journal)?

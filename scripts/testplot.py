@@ -33,7 +33,7 @@ move("xlab", "d")
 move("xtit", "u")
 # the Y axis labeling will be made a bit crazy because the Y title is long
 move("ylab", "RR")
-move("ytit", "Rrr") # left
+move("ytit", "Rrr") # move it left
 move("yl", "Lll")
 move("yr", "r")
 move("xb", "d")

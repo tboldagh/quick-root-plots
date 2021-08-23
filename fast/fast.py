@@ -103,7 +103,7 @@ def styleOffset(n = 0):
     _styleOffset = n
     
 def clear():
-    print("clearing bffered drawing history")
+    print("clearing drawing history")
     global _hists
     global _legend
     global _legendpos
@@ -117,6 +117,7 @@ def clear():
     
 
 def get(src, name, default_if_missing=None):
+    """ Get the object from the file, if missing raises an exception unless  the third argument is provided (that is specimen)"""
     o = src.Get(name)
     if not o:        
         if not default_if_missing:
@@ -125,6 +126,7 @@ def get(src, name, default_if_missing=None):
     return o
 
 def style(name="atlas"):
+    """Apply a predefined style, ATLAS experiment one and a compact are the only styles available"""
     def _atlas():
         """Make style like ATLAS experiment"""
         ROOT.gStyle.SetPadTopMargin(0.05)
@@ -205,6 +207,7 @@ def style(name="atlas"):
 
 
 def cnv(name=None, x=500, y=500):
+    """Create canvas of aforementioned sizes"""
     global _cnvs
     name =  "cnv%d" % len(_cnvs) if not name else name
     c = ROOT.TCanvas(name, name, x, y)
@@ -224,9 +227,9 @@ def csplit(factor=0.4):
     bottom.SetPad(0, 0. , 1, factor)
     bottom.SetLeftMargin(0.2)
     bottom.SetBottomMargin(0.35)
-    #ccnv().cd(2).SetBackgroundColor(ROOT.kRed)
 
 def ccnv(pad=0):
+    """Current canvas"""
     global _cnvs
     if pad == 0:
         return _cnvs[-1]
@@ -234,6 +237,7 @@ def ccnv(pad=0):
     return _cnvs[0].GetPad(pad)
 
 def new():
+    """Prepare for a new plot in one scipt"""
     global _hists
     _hists = []
     global _legend
@@ -243,6 +247,9 @@ def new():
 
 
 def frame(xr, yr=(1,0,1)):
+    """ Make frame (axes), arguments are divisions & ranges for each axis packed in 2 element tuple
+        e.g. (10, -1,1) means many divisions and range from -1 to 1        
+    """
     global _hists
     global _cnvs
     f = ROOT.TH2C("frame%d%d" % (len(_cnvs),_cnvs[0].GetNumber()), "frame", xr[0], xr[1], xr[2], yr[0], yr[1], yr[2])
@@ -257,6 +264,7 @@ def frame(xr, yr=(1,0,1)):
     return f
 
 def cframe():
+    """Current flame"""
     global _hists
     if _hists[0].GetTitle() == "frame":
         return _hists[0]
@@ -271,6 +279,7 @@ def _getLegend():
     
 
 def draw(h, label=None, opt="", tolegend=True, legendopt="lp"):
+    """Draw (histogram, graph,...) on current canvas """
     if not label:
         label = h.GetName()
     global _hists
@@ -295,6 +304,7 @@ def draw(h, label=None, opt="", tolegend=True, legendopt="lp"):
 
 
 def stack(st, h, label=None, tolegend="true"):
+    """Plot in a 'stack' style"""
     global _hists
     if tolegend:    
         _hists.append( h )
@@ -307,6 +317,7 @@ def nhists():
     return len(_hists)
     
 def legend(posKey="tr", title = ""):
+    """Add the legend at a position given by the positioning key (see docu)"""
     coord = _posKey2Abs(posKey)
     global _legend
     if not _legend:
@@ -319,6 +330,7 @@ def legend(posKey="tr", title = ""):
     return _legend
     
 def axis(x, y):
+    """Label axes if the frame was used"""
     global _hists
     assert len(_hists) > 0, "No histograms to set axes"
     for h in _hists[::-1]:
@@ -388,6 +400,7 @@ def _saveToDir( cnv,  dirn,  name, dumpROOT=False):
 
 
 def save(name, dumpROOT=False):
+    """Save the content of current canvas as PDF in plots/ subdir, if dumpROOT is enabled additional ROOT file with all the conntent is made"""
     global _cnvs
     global _legend
     global _legendpos
@@ -396,6 +409,7 @@ def save(name, dumpROOT=False):
     _saveToDir(_cnvs[-1], "plots", name, dumpROOT=dumpROOT)
 
 def s(name):
+    """A abbreviated save"""
     global _cnvs
     global _legend
     global _legendpos
