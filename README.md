@@ -19,12 +19,7 @@ draw(h, "my data Y") # automatically superimposed, changed symbols & colors, and
 
 save("comparison") # generates PDF comparisons.pdf in "plots" subdir
 ```
-See the result of running the [testplot.py](https://github.com/tboldagh/quick-root-plots/blob/main/scripts/testplot.py).
-<object data="https://github.com/tboldagh/quick-root-plots/blob/main/figures/testplot.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="https://github.com/tboldagh/quick-root-plots/blob/main/figures/testplot.pdf">
-        <p>No PDF support? <a href="https://github.com/tboldagh/quick-root-plots/blob/main/figures/testplot.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+See the result of running the [testplot.py](https://github.com/tboldagh/quick-root-plots/blob/main/figures/testplot.pdf).
 
 ## What functionality is included
 * getting the histograms with `get` (third argument can be used to provide a specimen histogram)
