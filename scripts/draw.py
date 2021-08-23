@@ -37,6 +37,8 @@ options.internal=None
 
 from fast import *
 
+style("atlas")
+
 assert _file0, "the root file can not be open"
 hists = []
 if isinstance(options.hist, str):
@@ -115,7 +117,9 @@ else:
 fr = frame(xr, yr)
 if options.zrange:
     fr.GetZaxis().SetRangeUser(options.zrange[1], options.zrange[2])
-legend(options.legendpos)
+
+if len(hists) > 1:    
+    legend(options.legendpos)
 
 axis(options.xtit if options.xtit else hists[0].GetXaxis().GetTitle(), options.ytit if options.ytit else hists[0].GetYaxis().GetTitle())
 if options.logx:
@@ -161,14 +165,15 @@ if options.line:
         f.SetLineColor(h.GetLineColor())
 
 if options.internal:
-    args = (options.internal) +("ATLAS #font[42]Internal", options.msgsz)
-    label(args)
+    args = (options.internal) +("#font[72]{ATLAS} #font[42]{Internal}", options.msgsz)
+    putlabel(*args)
+
 texts = []
 for index,m in enumerate(options.msg,1):
     if isinstance(m, tuple):
-        texts.append( Label(*m) )
+        texts.append( putlabel(*m) )
     else:
-        texts.append( Label(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
+        texts.append( putlabel(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
 
 
 if options.ratioto:
@@ -176,7 +181,9 @@ if options.ratioto:
     numerators = [h for h in hists if h.GetName() != options.ratioto]
     assert len(denominator) == 1, "Missing histogram in denominator"+options.ratioto
     denominator = denominator[0]
-    print("ok ", denominator.GetName() )
+    if denominator.ClassName() == "TProfile":
+        denominator = denominator.ProjectionX()
+    print("ratios of ",  [n.GetName() for n in numerators], "to", denominator.GetName() )
     ccnv(2)
     f = frame(options.xrange, (3,)+options.ratiorange)
     x = f.GetXaxis()
@@ -189,17 +196,25 @@ if options.ratioto:
     y.SetTitleOffset(0.75)
     y.SetLabelSize(0.14)
     y.SetNdivisions(6,4,0,True)
-
+    styleOffset(0)
     for n in numerators:
-        c = n.Clone(n.GetName()+"Ratio")
+        if n.ClassName() == "TProfile":
+            c = n.ProjectionX()
+        else:
+            c = n.Clone(n.GetName()+"Ratio")
         c.Divide(n, denominator, 1.0, 1.0, "B")
+        draw(c, "", opt=options.drawopt, tolegend=False)
         c.Draw("same")
 
     axis(options.xtit, "Ratio")
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])
     one.SetParameter(0, 1)
     one.SetLineWidth(1)
+    one.SetLineStyle(ROOT.kDashed)
+    one.SetLineColor(ROOT.kBlack)
+
     one.Draw("Same")
+
 
 
 
