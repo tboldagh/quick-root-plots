@@ -18,16 +18,26 @@ for i in range(options.nsamples):
 
 style("atlas") #try also atlas experiment style
 cnv()
-frame((5, -0.1, 1.1), (6, 0, 0.5*options.nsamples))
-legend("tr,USl") # move it several times up (U) and shorten (S), and then move to left a bit (l)
+frame((5, -0.3, 1.1), (6, 0.1, 0.49*options.nsamples))
+legend("tr,uSLww") # move it several times up (u) and shorten (S), and then move to left (L) and make it 2 quants wider
 
-axis("Size [mm]", "Occurrences")
+axis("Size [mm]", "Occurrences in an interval of width 0.1")
 draw(hx,"Data X (Poisson)", "hpe")
 draw(hy, "Data Y (Binomial)", "he")
 
-label(0.2, 0.90, "Samples comparison", 0.05 )
+putlabel("tl,ddLL", "Samples comparison", 0.05 ) # keyed position 
 
-label(0.75, 0.96, "piROOT", 0.05 )
+putlabel(0.79, 0.96, "#piR#lower[0.3]{#scale[2]{#bullet}}#kern[-2.5]{#lower[0.2]{#scale[1.4]{#/}}}#kern[0.3]{OT}", 0.05 ) # absoluteposition
+
+move("xlab", "d")
+move("xtit", "u")
+# the Y axis labeling will be made a bit crazy because the Y title is long
+move("ylab", "RR")
+move("ytit", "Rrr") # left
+move("yl", "Lll")
+move("yr", "r")
+move("xb", "d")
+move("xt", "d")
 
 save("testplot")
 

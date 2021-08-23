@@ -17,6 +17,83 @@ attrs = [(ROOT.kGray+3, ROOT.kFullCircle),
        (ROOT.kTeal+3, ROOT.kOpenDiamond),
     ] 
 
+
+pos = {"tr"  : (0.60, 0.60, 0.92, 0.9),
+        "trn" : (0.80, 0.60, 0.92, 0.9),           
+        "tl"  : (0.22, 0.60, 0.52, 0.9),
+        "tc"  : (0.40, 0.60, 0.70, 0.9),
+        "br" : (0.60, 0.22, 0.92, 0.42),           
+        "brn" : (0.80, 0.22, 0.92, 0.42),
+}
+
+def _moveDirectives(directives, init=(0,0,0,0)):
+    moves = {"u": (0, 0.02, 0, 0.02),
+            "U": (0, 0.06, 0, 0.06),
+            "d": (0, -0.02, 0, -0.02),
+            "D": (0, -0.06, 0, -0.06),
+            "r": (0.02, 0, 0.02, 0),
+            "R": (0.06, 0, 0.06, 0),
+            "l": (-0.02, 0, -0.02, 0) ,
+            "L": (-0.06, 0, -0.06, 0),
+            "n": (0.02, 0, -0.02, 0),
+            "N": (0.06, 0, -0.06, 0),
+            "w": (-0.02, 0, 0.02, 0),
+            "W": (-0.06, 0, 0.06, 0),
+            "s": (0, 0.02, 0, -0.02),
+            "S": (0, 0.06, 0, -0.06),
+            "t": (0, -0.02, 0, 0.02),
+            "T": (0, -0.06, 0, 0.06)
+    }
+    pos=init
+    for d in directives:
+        assert d in moves, "move directive not known"
+        pos = tuple([ c+m for c,m in zip( pos, moves[d]) ])
+    return pos
+
+
+def _posKey2Abs(posKey):
+    if all( [ k not in posKey for k in pos.keys()] ):
+        raise Exception("No legend position "+posKey+ " there are possible: " +" ".join(list(pos.keys()) ))
+    directives=posKey.split(",")
+    coord = pos[directives[0]]
+
+    if len(directives) == 2:
+        coord = _moveDirectives(directives[1], coord)
+    return coord
+
+
+def move(what, posKey):
+    """Moves plot elements according to the moves key  UDLR (instead of the key a number can be also given)
+        Not all move operations work for all elements
+    """
+    pos = _moveDirectives(posKey) if isinstance(posKey, str) else (posKey, posKey, posKey, posKey)
+    print ("... Moving", what, pos)        
+    if what == 'xlab':
+        cframe().GetXaxis().SetLabelOffset( cframe().GetXaxis().GetLabelOffset()-pos[1] )
+
+    elif what == 'xtit':
+        cframe().GetXaxis().SetTitleOffset( cframe().GetXaxis().GetTitleOffset()-pos[1]*10 )
+
+    elif what == 'ylab':
+        cframe().GetYaxis().SetLabelOffset( cframe().GetYaxis().GetLabelOffset()-pos[0] )
+
+    elif what == 'ytit':
+        cframe().GetYaxis().SetTitleOffset( cframe().GetYaxis().GetTitleOffset()-pos[0]*10 )
+
+    elif what == 'yl':
+        ccnv().SetLeftMargin( ccnv().GetLeftMargin()+pos[0])
+    elif what == 'yr':
+        ccnv().SetRightMargin( ccnv().GetRightMargin()-pos[0])
+    elif what == 'xb':
+        ccnv().SetBottomMargin( ccnv().GetBottomMargin()+pos[1])
+    elif what == 'xt':
+        ccnv().SetTopMargin( ccnv().GetTopMargin()-pos[1])
+
+    else:
+        assert False, "Do not know what to move {}".format(what)
+
+
+
 def setattrs(newattrs):
     global attrs
     attrs = newattrs
@@ -165,7 +242,6 @@ def new():
     return cnv()
 
 
-
 def frame(xr, yr=(1,0,1)):
     global _hists
     global _cnvs
@@ -173,9 +249,10 @@ def frame(xr, yr=(1,0,1)):
     f.Draw()    
 #    f.GetXaxis().SetTitleOffset(1.2)
     f.GetXaxis().SetNdivisions(xr[0] + 100*5)
+    f.GetXaxis().SetMaxDigits(3)
 #    f.GetYaxis().SetTitleOffset(2)
     f.GetYaxis().SetNdivisions(yr[0] + 100*5)
-    
+    f.GetYaxis().SetMaxDigits(3)
     _hists.append(f)
     return f
 
@@ -202,12 +279,18 @@ def draw(h, label=None, opt="", tolegend=True, legendopt="lp"):
     h.Draw(opt)
     if tolegend:    
         _hists.append( h )
+        if 'p' not in opt:
+            legendopt = legendopt.replace('p', '')
         _getLegend().AddEntry(h, label, legendopt)
     global _styleOffset
     h.SetLineColor(attrs[_styleOffset][0])
     if 'p' in opt:
         h.SetMarkerColor(attrs[_styleOffset][0])
         h.SetMarkerStyle(attrs[_styleOffset][1])
+    else:
+        h.SetMarkerColor(0)
+        h.SetMarkerStyle(0)
+
     _styleOffset += 1
 
 
@@ -224,43 +307,8 @@ def nhists():
     return len(_hists)
     
 def legend(posKey="tr", title = ""):
-    pos = {"tr"  : (0.60, 0.60, 0.92, 0.9),
-           "trn" : (0.80, 0.60, 0.92, 0.9),           
-           "tl"  : (0.22, 0.60, 0.52, 0.9),
-           "tc"  : (0.40, 0.60, 0.70, 0.9),
-           "br" : (0.60, 0.22, 0.92, 0.42),           
-           "brn" : (0.80, 0.22, 0.92, 0.42),
-    }
-    moves = {"u": (0, 0.02, 0, 0.02),
-             "U": (0, 0.06, 0, 0.06),
-             "d": (0, -0.02, 0, -0.02),
-             "D": (0, -0.06, 0, -0.06),
-             "r": (0.02, 0, 0.02, 0),
-             "R": (0.06, 0, 0.06, 0),
-             "l": (-0.02, 0, -0.02, 0) ,
-             "L": (-0.06, 0, -0.06, 0),
-             "n": (0.02, 0, -0.02, 0),
-             "N": (0.06, 0, -0.06, 0),
-             "w": (-0.02, 0, 0.02, 0),
-             "W": (-0.06, 0, 0.06, 0),
-             "s": (0, 0.02, 0, -0.02),
-             "S": (0, 0.06, 0, -0.06),
-             "t": (0, -0.02, 0, 0.02),
-             "T": (0, -0.06, 0, 0.06)
-    }
-
-    if all( [ k not in posKey for k in pos.keys()] ):
-        raise Exception("No legend position "+posKey+ " there are possible: " +" ".join(list(pos.keys()) ))
+    coord = _posKey2Abs(posKey)
     global _legend
-    directives=posKey.split(",")
-    coord = pos[directives[0]]
-
-    if len(directives) == 2:
-        for d in directives[1]:
-            assert d in moves, "Legend move directive not known"
-            print( moves[d])
-            coord = tuple([ c+m for c,m in zip( coord, moves[d]) ])
-
     if not _legend:
         _legend = ROOT.TLegend( *coord )
 
@@ -363,7 +411,9 @@ def _label(x, y, text, textsize=0.1):
     return l.DrawLatex(x,y, text)
 
 
-def label(locx, locy, text, sz=0.1):
+
+
+def _putlabelABS(locx, locy, text, sz=0.1):
     if locx < 0:
         locx = 1 + locx
     if locy < 0:
@@ -375,13 +425,19 @@ def label(locx, locy, text, sz=0.1):
     l.SetTextColor(ROOT.kBlack)
     l.DrawLatex(locx, locy, text)
 
-def mlz( h ):
-    h.SetTitle("");
-    h.GetYaxis().SetNdivisions(505);
-    h.GetYaxis().SetTitleOffset(1.5);    h.GetXaxis().SetTitleOffset(1.2);
-    h.GetYaxis().SetTitleFont(43);      h.GetYaxis().SetTitleSize(17);
-    h.GetYaxis().SetLabelFont(43);      h.GetYaxis().SetLabelSize(17);
-    h.GetXaxis().SetTitleFont(43);      h.GetXaxis().SetTitleSize(17);
-    h.GetXaxis().SetLabelFont(43);      h.GetXaxis().SetLabelSize(17);
-    h.SetLineWidth(2);
 
+def putlabel(posXOrKey, posYOrText, textOrFont=None, sz=0.1):
+    """Puts label in absolute position or in position given by the key"""
+    if isinstance(posXOrKey, str):
+        coords=_posKey2Abs(posXOrKey)
+        print("label pos", coords)
+        _putlabelABS(coords[0], coords[-1], posYOrText, textOrFont if textOrFont else sz)
+    else:
+        _putlabelABS(posXOrKey, posYOrText, textOrFont, sz)
+
+
+def tograph(h):
+    """Convert to TGraphErrors if objects is not a TGraph already """
+    if "TGraph" in h.ClassName():
+        return h
+    return ROOT.TGraphErrors(h)

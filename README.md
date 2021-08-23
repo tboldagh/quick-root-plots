@@ -29,12 +29,27 @@ save("comparison") # generates PDF
 * `draw` function taking the histogram, label in the legend, drawing option, boolean to add or not to the legend, legend option (default is to have line and symbol). 
     Colors are decided automatically and are inspired from https://colorbrewer2.org/ for qualitative data). The symbols are as well decided. (If it needs to be customized, the `setattrs` taking `[(color, symbol)])` can be used.
 * `stacks` to create stack of histograms
-* `legend` to prepare the legend with a few predefined position (tr, tl, tc, br where t is for top, b, bottom, r for right, c for center and l for left) and moving directives (u move up, d down, l/r left right, w to widen and n to make the legend narrower and s/t for shorter/taller). Capital move directives move by 3 quants, i..e L is the same as lll.
+* `legend` to prepare the legend with a few predefined position 
 * `axis` to set axes labels
 * `save` to save the canvas as PDF (with dumpROOT option saves convenient ROOT file)
-* `label` adds text at position given by args.
+* `putlabel` adds text at position given by args (either explicit or via positioning key).
+* `move` moves plot elements around (resizing typically do not apply). Elements that can be moved are, axes, axes labels & titles.
 Pretty much all of it is used in example `testplot.py` script.
 
+### Positioning/moving
+Several functions take positioning key as an argument. They help to quickly place elements on the plot and move it a bit.
+There are predefined positions for the legend:
+`tr`, `tl`, `tc`, `br` where t is for top, b, bottom, r for right, c for center and l for left. So the `tl` would mean top-left.
+In addition they key can be supplemented by move/resize directives that are:
+* `u` move up
+* `d` down
+* `l` left 
+* `r` right, 
+* `w` widen 
+* `n` to make object narrower and 
+* `s` shorter
+* `t` taller. 
+Capital move directives move by 3 quants, i..e LU is the same as llluuu.
 # piroot 
 Is a wrapper of python + ROOT that allows to execute following comamnds:
 ```
