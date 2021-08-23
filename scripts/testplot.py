@@ -27,7 +27,7 @@ draw(hy, "Data Y (Binomial)", "he")
 
 putlabel("tl,ddLL", "Samples comparison", 0.05 ) # keyed position 
 
-putlabel(0.79, 0.96, "#piR#lower[0.3]{#scale[2]{#bullet}}#kern[-2.5]{#lower[0.2]{#scale[1.4]{#/}}}#kern[0.3]{OT}", 0.05 ) # absoluteposition
+putlabel(0.79, 0.96, "#piR#kern[-0.1]{#lower[0.35]{#scale[2.5]{#bullet}}}#kern[-0.9]{#lower[0.1]{#scale[1.2]{#/}}}#kern[-0.1]{OT}", 0.05 ) # absolute position (BTW. the PDF and ROOT Canvas versions of this fancy text looks differnet, the PDF version looks good)
 
 move("xlab", "d")
 move("xtit", "u")
