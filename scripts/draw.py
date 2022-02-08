@@ -23,6 +23,7 @@ options.wscale=None
 options.escale=None # events scale
 options.pscale=None # scale to the same number of entries in position
 options.lscale=None
+options.ascale=None # arbitrary scale applied to each histogream
 options.msg=[]
 options.msgpos=(0.6, 0.89)
 options.msgsz=0.03
@@ -31,7 +32,7 @@ options.rebin=None
 options.layout=None
 options.legend=[""]
 options.legendpos="tr"
-options.ratioto=None
+options.ratioto=None # can be hist name or index
 options.ratiorange=(0.45,1.55)
 options.internal=None
 
@@ -90,7 +91,10 @@ if options.escale:
 if options.pscale != None:
     [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists ]
     
-    
+if options.ascale != None:
+    [ h.Scale(s, "width") for h,s in zip(hists, options.ascale) ]
+
+
 if options.rebin2D:
     [ h.Rebin2D(options.rebin2D[0], options.rebin2D[1])  for h in hists ]
 
@@ -106,7 +110,7 @@ assert xr, "X range not specified"
 assert yr, "Y range not specified"
 
 print(xr, yr)
-if options.ratioto:
+if options.ratioto is not None:
     cnv(y=600)
     csplit(0.3)
     ccnv(1).SetLogy(options.ylog)
@@ -176,10 +180,17 @@ for index,m in enumerate(options.msg,1):
         texts.append( putlabel(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
 
 
-if options.ratioto:
-    denominator = [h for h in hists if h.GetName() == options.ratioto]
-    numerators = [h for h in hists if h.GetName() != options.ratioto]
-    assert len(denominator) == 1, "Missing histogram in denominator"+options.ratioto
+if options.ratioto is not None:
+    if isinstance(options.ratioto, str):
+        denominator = [h for h in hists if h.GetName() == options.ratioto]
+        numerators = [h for h in hists if h.GetName() != options.ratioto]
+    elif isinstance(options.ratioto, int):
+        denominator = [hists[options.ratioto]]
+        numerators = [h for i,h in enumerate(hists) if i != options.ratioto]
+    else:
+        assert False, "rationto is neiter hist name, nor index"
+
+    assert len(denominator) == 1, "Missing histogram in denominator "+str(options.ratioto)
     denominator = denominator[0]
     if denominator.ClassName() == "TProfile":
         denominator = denominator.ProjectionX()
@@ -193,8 +204,8 @@ if options.ratioto:
 
     y = f.GetYaxis()
     y.SetTitleSize(0.14)
-    y.SetTitleOffset(0.75)
-    y.SetLabelSize(0.14)
+    y.SetTitleOffset(0.50)
+    y.SetLabelSize(0.12)
     y.SetNdivisions(6,4,0,True)
     styleOffset(0)
     for n in numerators:
