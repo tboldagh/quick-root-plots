@@ -35,6 +35,7 @@ options.legendpos="tr"
 options.ratioto=None # can be hist name or index
 options.ratiorange=(0.45,1.55)
 options.internal=None
+options.cd="" # histograms from common path
 
 from fast import *
 
@@ -51,20 +52,20 @@ assert options.out, "out option has to be specified"
 assert len(_files) == 1 or len(_files) == len(options.hist) or len(options.hist) == 1, "Either single file is supported, or number of files needs to be the same as number of histograms"
 if len(_files) == 1: # one input file, all hostograms read from it
     for hname in options.hist:
-        h = _file0.Get(hname)    
+        h = _file0.Get(options.cd+hname)    
         assert h, "Historgam " +hname+ " does not exist"
         print("Histogram ", h.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
 elif len(_files) == len(options.hist): # same number of inputs as histograms
     for hname, file in zip(options.hist, _files):
-        h = file.Get(hname)    
+        h = file.Get(options.cd+hname)
         assert h, "Historgam " +hname+ " does not exist"
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 elif len(options.hist) == 1:
     for file in _files:
-        h = file.Get(options.hist[0])
+        h = file.Get(options.cd+options.hist[0])
         assert h, "Historgam " +options.hist[0]+ " does not exist"
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
