@@ -48,6 +48,10 @@ if isinstance(options.hist, str):
     if not options.out:
         options.out = options.hist[0]
 
+# strip hist names from drawing options
+options.histdraw = [(h.split(':')[1:]+[""])[0] for h in options.hist]
+options.hist = [h.split(':')[0] for h in options.hist]
+
 assert options.out, "out option has to be specified"
 assert len(_files) == 1 or len(_files) == len(options.hist) or len(options.hist) == 1, "Either single file is supported, or number of files needs to be the same as number of histograms"
 if len(_files) == 1: # one input file, all hostograms read from it
@@ -135,12 +139,12 @@ if options.zlog:
     ccnv().SetLogz(1)
 
 
-for h, label in zip(hists, options.legend):
+for counter, h, label in zip(range(len(hists)), hists, options.legend):
     # h.SetLineColor(att[0])
     # h.SetMarkerStyle(att[1])
     # h.SetMarkerColor(att[0])
     print(("Drawing histogram {} with label {}".format(h.GetName(), label)))
-    draw(h, label, opt=options.drawopt)
+    draw(h, label, opt=options.histdraw[counter] if options.histdraw[counter] else options.drawopt)
 
 if options.zlog or options.zrange:
     ccnv().SetLeftMargin(0.15)
@@ -189,7 +193,7 @@ if options.ratioto is not None:
         denominator = [hists[options.ratioto]]
         numerators = [h for i,h in enumerate(hists) if i != options.ratioto]
     else:
-        assert False, "rationto is neiter hist name, nor index"
+        assert False, "ratioto is neiter hist name, nor index"
 
     assert len(denominator) == 1, "Missing histogram in denominator "+str(options.ratioto)
     denominator = denominator[0]
