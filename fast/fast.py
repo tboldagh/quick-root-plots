@@ -24,7 +24,12 @@ pos = {"tr"  : (0.60, 0.60, 0.92, 0.9),
         "tc"  : (0.40, 0.60, 0.70, 0.9),
         "br" : (0.60, 0.22, 0.92, 0.42),           
         "brn" : (0.80, 0.22, 0.92, 0.42),
+        "bc" : (0.40, 0.22, 0.72, 0.42),
+        "bl" : (0.20, 0.22, 0.52, 0.42),
+        "cc" : (0.45, 0.46, 0.68, 0.68)
+
 }
+
 
 def _moveDirectives(directives, init=(0,0,0,0)):
     moves = {"u": (0, 0.02, 0, 0.02),
@@ -278,24 +283,28 @@ def _getLegend():
     return _legend
     
 
-def draw(h, label=None, opt="", tolegend=True, legendopt="lp"):
+def draw(h, label=None, opt="", tolegend=True, legendopt="lp", style=None, color=None):
     """Draw (histogram, graph,...) on current canvas """
     if not label:
         label = h.GetName()
     global _hists
 
     opt =  opt if len(_hists) == 0 else "same "+opt
+    global _styleOffset
+    _color = attrs[_styleOffset][0] if color is None else color
+    _style = attrs[_styleOffset][1] if style is None else style
+
     h.Draw(opt)
     if tolegend:    
         _hists.append( h )
         if 'p' not in opt:
             legendopt = legendopt.replace('p', '')
         _getLegend().AddEntry(h, label, legendopt)
-    global _styleOffset
-    h.SetLineColor(attrs[_styleOffset][0])
+    h.SetLineColor(_color)
+    
     if 'p' in opt:
-        h.SetMarkerColor(attrs[_styleOffset][0])
-        h.SetMarkerStyle(attrs[_styleOffset][1])
+        h.SetMarkerColor(_color)
+        h.SetMarkerStyle(_style)
     else:
         h.SetMarkerColor(0)
         h.SetMarkerStyle(0)
