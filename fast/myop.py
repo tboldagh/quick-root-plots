@@ -3,7 +3,7 @@ class myop(object):
     def __init__(self, scope):
         myop.__scope = scope
         self.interactive=False
-        
+
     def __repr__(self):
         return str(self.__dict__)
 
@@ -13,12 +13,12 @@ class myop(object):
             super(myop, self).__setattr__(name, myop.__scope[name])
             del myop.__scope[name] # clean global namespace
         else:
-            super(myop, self).__setattr__(name, val)        
+            super(myop, self).__setattr__(name, val)
 
     def run_args(self):
-        args='' 
+        args=''
         for attr in dir(self):
-            if '__' in attr: 
+            if '__' in attr:
                 continue
             if 'run_args' in attr:
                 continue
@@ -27,7 +27,7 @@ class myop(object):
             args += repr(self.__getattribute__(attr))
             args += ';'
         return args
-        
+
 def run_args(options):
     return options.run_args()
 
