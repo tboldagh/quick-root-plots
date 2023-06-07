@@ -25,6 +25,7 @@ options.wscale=None
 options.escale=None # events scale
 options.pscale=None # scale to the same number of entries in position
 options.lscale=None
+options.ascale=None # arbitrary scale applied to each histogream
 options.msg=[]
 options.msgpos=(0.6, 0.89)
 options.msgsz=0.03
@@ -38,6 +39,7 @@ options.ratiorange=(0.45,1.55)
 options.ratiotit="Ratio"
 
 options.internal=None
+options.cd="" # histograms from common path
 
 from fast import *
 
@@ -49,6 +51,10 @@ if isinstance(options.hist, str):
     options.hist = [options.hist]
     if not options.out:
         options.out = options.hist[0]
+
+# strip hist names from drawing options
+options.histdraw = [(h.split(':')[1:]+[""])[0] for h in options.hist]
+options.hist = [h.split(':')[0] for h in options.hist]
 
 assert options.out, "out option has to be specified"
 assert len(_files) == 1 or len(_files) == len(options.hist) or len(options.hist) == 1, "Either single file is supported, or number of files needs to be the same as number of histograms"
@@ -68,7 +74,7 @@ elif len(_files) == len(options.hist): # same number of inputs as histograms
 
 elif len(options.hist) == 1:
     for file in _files:
-        h = file.Get(options.hist[0])
+        h = file.Get(options.cd+options.hist[0])
         assert h, "Historgam " +options.hist[0]+ " does not exist"
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
