@@ -7,6 +7,8 @@ options.drawopt="root: he"
 options.logx=0
 options.logy=0
 options.ylog=options.logy
+options.logx=0
+options.xlog=options.logx
 options.zlog=0
 options.xtit=None
 options.ytit=None
@@ -21,11 +23,11 @@ options.zrange=None
 options.fitrange=None
 options.linfitprof=False
 options.rebin2D=None
-options.wscale=None
+options.wscale=None # just width scale
 options.escale=None # events scale
 options.pscale=None # scale to the same number of entries in position
 options.lscale=None
-options.ascale=None # arbitrary scale applied to each histogream
+options.ascale=None # arbitrary scale applied to each histogram
 options.msg=[]
 options.msgpos=(0.6, 0.89)
 options.msgsz=0.03
@@ -37,6 +39,8 @@ options.legendpos="tr"
 options.ratioto=None # either the name or index from 0
 options.ratiorange=(0.45,1.55)
 options.ratiotit="Ratio"
+options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y
+options.ratioscale=None # scale ratio by a value
 
 options.internal=None
 options.cd="" # histograms from common path
@@ -80,6 +84,10 @@ elif len(options.hist) == 1:
         hists.append(h)
 
 assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
+
+if len(hists) <= 3:
+    print(".. small number of histograms switching to contrast style")
+    few()
 
 if isinstance(options.drawopt, str):
     options.drawopt = [options.drawopt]*len(hists)
@@ -135,9 +143,11 @@ if not options.ratioto is None:
     cnv(y=600)
     csplit(0.3)
     ccnv(1).SetLogy(options.ylog)
+    ccnv(1).SetLogx(options.xlog)
 else:
     cnv()
     ccnv(0).SetLogy(options.ylog)
+    ccnv(0).SetLogx(options.xlog)
 
 fr = frame(options.xrange, options.yrange)
 if options.zrange:
@@ -210,7 +220,7 @@ for index,m in enumerate(options.msg,1):
         texts.append( putlabel(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
 
 
-if options.ratioto:
+if options.ratioto != None:
     if isinstance( options.ratioto, int):
         denominator = [hists[options.ratioto]]
         numerators = [ h for i,h in enumerate(hists) if i != options.ratioto ]
@@ -227,12 +237,12 @@ if options.ratioto:
     x = f.GetXaxis()
     x.SetTitleSize(0.14)
     x.SetTitleOffset(1.1)
-    x.SetLabelSize(0.14)
+    x.SetLabelSize(0.12)
 
     y = f.GetYaxis()
     y.SetTitleSize(0.14)
     y.SetTitleOffset(0.55)
-    y.SetLabelSize(0.14)
+    y.SetLabelSize(0.12)
     y.SetNdivisions(6,4,0,True)
     styleOffset(0)
     for n in numerators:
@@ -240,13 +250,33 @@ if options.ratioto:
             c = n.ProjectionX()
         else:
             c = n.Clone(n.GetName()+"Ratio")
-        c.Divide(n, denominator, 1.0, 1.0, "B")
+        if options.ratiotype == "ratio":
+            c.Divide(n, denominator, 1.0, 1.0, "B")
+        if options.ratiotype == "diff":
+            c.Add(n, denominator, -1.0)
+        if options.ratiotype == "rel":
+            c.Add(n, denominator, -1.0)
+            c.Divide(c, denominator, 1.0, 1.0, "B")
+        if options.ratiotype == "pull":
+            uncertainties = [ n.GetBinError(b) for b in allbins(n)]
+            c.Add(n, denominator, -1.0)            
+            for b, u in zip(allbins(c), uncertainties):
+                print(b , u)
+                c.SetBinContent(b, c.GetBinContent(b)/uncertainties[b-1]) if uncertainties[b-1] != 0.0 else c.SetBinContent(b, 0)
+
+        if options.ratioscale:
+            c.Scale(options.ratioscale)  
+
         draw(c, "SKIP", opt="pe")
 #        c.Draw("same")
 
     axis(options.xtit, options.ratiotit)
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])
-    one.SetParameter(0, 1)
+    if options.ratiotype == "ratio":
+        one.SetParameter(0, 1)
+    else:
+        one.SetParameter(0, 0)
+
     one.SetLineWidth(1)
     one.SetLineStyle(ROOT.kDashed)
     one.SetLineColor(ROOT.kBlack)

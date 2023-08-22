@@ -31,6 +31,15 @@ attrsHollow = [(ROOT.kGray+3, ROOT.kOpenCircle),
        (ROOT.kMagenta+1, ROOT.kOpenStar),
     ]
 
+def few():
+    """change styling for the case of very few (up to 3) plots to have higher contrast"""
+    global attrs
+    attrs = [(ROOT.kBlack, ROOT.kOpenCircle),
+           (ROOT.kRed, ROOT.kOpenSquare),
+           (ROOT.kBlue, ROOT.kOpenDiamond)]
+
+
+
 def polySet(which="default"):
     """Select which set of polymarkers & colors to use"""
     if which == "default":
@@ -187,40 +196,43 @@ def style(name="atlas"):
         ROOT.gStyle.SetTitleSize(tsize,"z")
 
         # use bold lines and markers
-        ROOT.gStyle.SetMarkerStyle(20);
-        ROOT.gStyle.SetMarkerSize(0.8);
-        #  atlasStyle->SetHistLineWidth(2.);
-        ROOT.gStyle.SetHistLineWidth(1);
-        ROOT.gStyle.SetLineStyleString(2,"[12 12]"); # postscript dashes
-        ROOT.gStyle.SetGridColor(ROOT.kGray);
-        ROOT.gStyle.SetGridWidth(1);
-        ROOT.gStyle.SetGridStyle(ROOT.kSolid);
+        ROOT.gStyle.SetMarkerStyle(20)
+        ROOT.gStyle.SetMarkerSize(0.8)
+        ROOT.gStyle.SetHistLineWidth(2)
+        ROOT.gStyle.SetLineStyleString(2,"[12 12]") # postscript dashes
+        ROOT.gStyle.SetGridColor(ROOT.kGray)
+        ROOT.gStyle.SetGridWidth(1)
+        ROOT.gStyle.SetGridStyle(ROOT.kSolid)
         # get rid of X error bars
-        #ROOT.gStyle.SetErrorX(0.001);
+        #ROOT.gStyle.SetErrorX(0.001)
         # get rid of error bar caps
-        ROOT.gStyle.SetEndErrorSize(0.);
+        ROOT.gStyle.SetEndErrorSize(0.)
         # do not display any of the standard histogram decorations
-        ROOT.gStyle.SetOptTitle(0);
-        #ROOT.gStyle.SetOptStat(1111);
-        ROOT.gStyle.SetOptStat(0);
-        #ROOT.gStyle.SetOptFit(1111);
-        ROOT.gStyle.SetOptFit(0);
+        ROOT.gStyle.SetOptTitle(0)
+        #ROOT.gStyle.SetOptStat(1111)
+        ROOT.gStyle.SetOptStat(0)
+        #ROOT.gStyle.SetOptFit(1111)
+        ROOT.gStyle.SetOptFit(0)
         # put tick marks on top and RHS of plots
-        ROOT.gStyle.SetPadTickX(1);
-        ROOT.gStyle.SetPadTickY(1);
+        ROOT.gStyle.SetPadTickX(1)
+        ROOT.gStyle.SetPadTickY(1)
         #/ my tunnings
-        ROOT.gStyle.SetOptStat("");
-        ROOT.gStyle.SetPadGridY(0);
-        ROOT.gStyle.SetPadGridX(0);
-        ROOT.gStyle.SetStatFontSize(0.1);
-        ROOT.gStyle.SetStatBorderSize(0);
-        ROOT.gStyle.SetStatStyle(0);
-        ROOT.gStyle.SetMarkerSize(0.8);
-        ROOT.gStyle.SetMarkerStyle(ROOT.kOpenCircle);
-        ROOT.gStyle.SetMarkerColor(ROOT.kBlue);
-        #  ROOT.gStyle.SetStatX(0.36);
-        ROOT.gStyle.SetStatW(0.45);
-        ROOT.gStyle.SetStatFormat("4.0g");
+        ROOT.gStyle.SetOptStat("")
+        ROOT.gStyle.SetPadGridY(0)
+        ROOT.gStyle.SetPadGridX(0)
+        ROOT.gStyle.SetStatFontSize(0.1)
+        ROOT.gStyle.SetStatBorderSize(0)
+        ROOT.gStyle.SetStatStyle(0)
+        ROOT.gStyle.SetMarkerSize(0.8)
+        ROOT.gStyle.SetMarkerStyle(ROOT.kOpenCircle)
+        ROOT.gStyle.SetMarkerColor(ROOT.kBlue)
+        #  ROOT.gStyle.SetStatX(0.36)
+        ROOT.gStyle.SetStatW(0.45)
+        ROOT.gStyle.SetStatFormat("4.0g")
+        # ROOT.TGaxis.SetMaxDigits(2)
+        # ROOT.TGaxis.SetExponentOffset(-0.2, -0.1, "y") # X and Y offset for Y axis
+        # ROOT.TGaxis.SetExponentOffset(0.05, 0.01, "x")
+
         ROOT.gROOT.ForceStyle()
     if name == "atlas":
         _atlas()
@@ -431,7 +443,7 @@ def yopen(factor):
 
 def _savePrimitive (obj):
     print("..... saving ", obj.GetName())
-    obj.Write();
+    obj.Write()
 
 
 def _followSubPads(pad, currentdir):
