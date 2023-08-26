@@ -141,7 +141,7 @@ assert options.yrange, "Y range not specified"
 
 if not options.ratioto is None:
     cnv(y=600)
-    csplit(0.3)
+    csplit(0.30)
     ccnv(1).SetLogy(options.ylog)
     ccnv(1).SetLogx(options.xlog)
 else:
@@ -232,18 +232,25 @@ if options.ratioto != None:
     if denominator.ClassName() == "TProfile":
         denominator = denominator.ProjectionX()
     print("ratios of ",  [n.GetName() for n in numerators], "to", denominator.GetName() )
-    ccnv(2)
-    f = frame(options.xrange, (3,)+options.ratiorange)
-    x = f.GetXaxis()
-    x.SetTitleSize(0.14)
-    x.SetTitleOffset(1.1)
-    x.SetLabelSize(0.12)
+    y = fr.GetYaxis()
+    y.SetTitleSize(0.06)
+    y.SetTitleOffset(1.25)
+    y.SetLabelSize(0.06)
 
-    y = f.GetYaxis()
+    ccnv(2)    
+    fb = frame(options.xrange, (3,)+options.ratiorange)
+    x = fb.GetXaxis()
+    x.SetTitleSize(0.14)
+    x.SetTitleOffset(1.2)
+    x.SetLabelSize(0.14)
+
+    y = fb.GetYaxis()
     y.SetTitleSize(0.14)
     y.SetTitleOffset(0.55)
-    y.SetLabelSize(0.12)
+    y.SetLabelSize(0.14)
     y.SetNdivisions(6,4,0,True)
+    y.SetNoExponent(1)
+
     styleOffset(0)
     for n in numerators:
         if n.ClassName() == "TProfile":
@@ -252,12 +259,12 @@ if options.ratioto != None:
             c = n.Clone(n.GetName()+"Ratio")
         if options.ratiotype == "ratio":
             c.Divide(n, denominator, 1.0, 1.0, "B")
-        if options.ratiotype == "diff":
-            c.Add(n, denominator, -1.0)
-        if options.ratiotype == "rel":
+        elif options.ratiotype == "diff":
+            c.Add(denominator, -1.0)
+        elif options.ratiotype == "rel":
             c.Add(n, denominator, -1.0)
             c.Divide(c, denominator, 1.0, 1.0, "B")
-        if options.ratiotype == "pull":
+        elif options.ratiotype == "pull":
             uncertainties = [ n.GetBinError(b) for b in allbins(n)]
             c.Add(n, denominator, -1.0)            
             for b, u in zip(allbins(c), uncertainties):

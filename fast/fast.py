@@ -265,10 +265,11 @@ def csplit(factor=0.4):
     top = ccnv().cd(1)
     top.SetPad(0, factor , 1, 1)
     top.SetBottomMargin(0.01)
-    top.SetLeftMargin(0.2)
+    top.SetTopMargin(0.07)
+    top.SetLeftMargin(0.17)
     bottom = ccnv().cd(2)
     bottom.SetPad(0, 0. , 1, factor)
-    bottom.SetLeftMargin(0.2)
+    bottom.SetLeftMargin(0.17)
     bottom.SetBottomMargin(0.35)
 
 def ccnv(pad=0):
