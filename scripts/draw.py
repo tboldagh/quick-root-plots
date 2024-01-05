@@ -3,39 +3,37 @@ from myop import *
 options = myop(globals())
 
 options.hist="h_FCalET"
-options.drawopt="root: he"
+options.drawopt="root: he" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
 options.ylog=options.logy
-options.logx=0
 options.xlog=options.logx
 options.zlog=0
-options.xtit=None
+options.xtit=None # axes titles
 options.ytit=None
 options.xlabel=None # either true, then labels are copied from source 1 input histogram or list of labels
 options.prof=False
 options.projy=False
 options.line=None
 options.fit=False
-options.xrange=None
-options.yrange=None
+options.xrange=None # ranges of the plot in x (10, 0, 5) = many ticks (10), in range 0 to 5
+options.yrange=None 
 options.zrange=None
 options.fitrange=None
 options.linfitprof=False
 options.rebin2D=None
 options.wscale=None # just width scale
 options.escale=None # events scale
-options.pscale=None # scale to the same number of entries in position
-options.lscale=None
+options.pscale=None # scale to the same number of entries in a given position
 options.ascale=None # arbitrary scale applied to each histogram
-options.msg=[]
+options.msg=[] # additional messages
 options.msgpos=(0.6, 0.89)
 options.msgsz=0.03
-options.out=None
-options.rebin=None
-options.layout=None
-options.legend=[""]
-options.legendpos="tr"
+options.out=None # output file name
+options.rebin=None # rebining e.g. when set to 2 two bins will be merged
+options.layout=None # 2d for 2D hists
+options.legend=[""] # names to be put on the legend
+options.legendpos="tr" # 
 options.ratioto=None # either the name or index from 0
 options.ratiorange=(0.45,1.55)
 options.ratiotit="Ratio"
@@ -79,7 +77,7 @@ elif len(_files) == len(options.hist): # same number of inputs as histograms
 elif len(options.hist) == 1:
     for file in _files:
         h = file.Get(options.cd+options.hist[0])
-        assert h, "Historgam " +options.hist[0]+ " does not exist"
+        assert h, "Historgam " +options.hist[0]+ " does not exist in " +file.GetPath()
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
@@ -101,6 +99,9 @@ if isinstance(options.msgpos, str):
 if isinstance(options.internal, str):
     xbl, ybl, xtr, ytr = posKey2Abs(options.internal)
     options.internal = (xbl, ytr)
+# if isinstance(options.legendpos, str):
+#     xbl, ybl, xtr, ytr = posKey2Abs(options.legendpos)
+#     options.legendpos = (xbl, ytr)
 
 if not options.layout:
     options.layout = '2d' if "TH2" in hists[0].ClassName() else None
@@ -116,10 +117,15 @@ if options.wscale:
     [ h.Scale(1, "width") for h in hists ]
 
 if options.escale:
-    [ h.Scale(1./h.GetEntries(), "width") for h in hists ]
+    [ h.Scale(1./h.GetEntries(), "width") for h in hists if h.GetEntries() > 1.0 ]
 
 if options.pscale != None:
     [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists ]
+
+if options.ascale != None:
+    print("... applying scale factors ", options.ascale)
+    assert len(options.ascale) == len(hists), "Need the same number of scale factors "+ options.ascale +" as number of hists" + len(hists)
+    [ h.Scale(float(s)) for s,h in zip(options.ascale, hists) ]
 
 
 if options.rebin2D:
@@ -179,6 +185,7 @@ if options.logx:
 if options.zlog:
     ccnv().SetLogz(1)
 
+# drawing histograms
 for h, label, opt in zip(hists, options.legend, options.drawopt):
     # h.SetLineColor(att[0])
     # h.SetMarkerStyle(att[1])
@@ -251,31 +258,62 @@ if options.ratioto != None:
     y.SetNdivisions(6,4,0,True)
     y.SetNoExponent(1)
 
-    styleOffset(0)
-    for n in numerators:
-        if n.ClassName() == "TProfile":
-            c = n.ProjectionX()
-        else:
-            c = n.Clone(n.GetName()+"Ratio")
+
+    def _divHist(dest, numerator, denominator):
         if options.ratiotype == "ratio":
-            c.Divide(n, denominator, 1.0, 1.0, "B")
+            dest.Divide(numerator, denominator, 1.0, 1.0, "B")
         elif options.ratiotype == "diff":
-            c.Add(denominator, -1.0)
+            dest.Add(denominator, -1.0)
         elif options.ratiotype == "rel":
-            c.Add(n, denominator, -1.0)
-            c.Divide(c, denominator, 1.0, 1.0, "B")
+            dest.Add(numerator, denominator, -1.0)
+            dest.Divide(dest, denominator, 1.0, 1.0, "B")
         elif options.ratiotype == "pull":
-            uncertainties = [ n.GetBinError(b) for b in allbins(n)]
-            c.Add(n, denominator, -1.0)            
+            uncertainties = [ numerator.GetBinError(b) for b in allbins(n)]
+            dest.Add(numerator, denominator, -1.0)            
             for b, u in zip(allbins(c), uncertainties):
                 print(b , u)
-                c.SetBinContent(b, c.GetBinContent(b)/uncertainties[b-1]) if uncertainties[b-1] != 0.0 else c.SetBinContent(b, 0)
-
+                dest.SetBinContent(b, dest.GetBinContent(b)/uncertainties[b-1]) if uncertainties[b-1] != 0.0 else dest.SetBinContent(b, 0)
         if options.ratioscale:
-            c.Scale(options.ratioscale)  
+            dest.Scale(options.ratioscale)  
 
+
+    def _divAsymmErrorsGraph(dest, numerator, denominator):
+        for p in range(numerator.GetN()):
+            x = numerator.GetPointX(p)
+            xErrHigh = numerator.GetErrorXhigh(p)
+            xErrLow = numerator.GetErrorXlow(p)
+
+            ynum = numerator.GetPointY(p)
+            yden = denominator.GetPointY(p)
+            yErrNumHigh = numerator.GetErrorYhigh(p)
+            yErrNumLow = numerator.GetErrorYlow(p)
+
+            yErrDenHigh = denominator.GetErrorYhigh(p)
+            yErrDenLow = denominator.GetErrorYlow(p)
+            import math
+            sq = lambda x: math.pow(x, 2)
+            yErrLow = math.sqrt(sq(ynum/yden)*( sq(yErrNumLow/ynum) + sq(yErrDenLow/yden) ))
+            yErrHigh = math.sqrt(sq(ynum/yden)*( sq(yErrNumHigh/ynum) +  sq(yErrDenHigh/yden) ))
+
+            if options.ratiotype == "ratio":
+                dest.SetPoint(p, x, ynum/yden)
+                dest.SetPointError(p, xErrLow, xErrHigh, yErrLow, yErrHigh)
+
+
+
+
+    styleOffset(0)
+    for i, num in enumerate(numerators):
+        if num.ClassName() == "TProfile":
+            c = num.ProjectionX(f"Ratio{i}")
+            _divHist(c, num, denominator)
+        elif "TH1" in num.ClassName():
+            c = num.Clone(num.GetName()+f"Ratio{i}")
+            _divHist(c, num, denominator)
+        elif num.ClassName() == "TGraphAsymmErrors":
+            c = num.Clone(f"Ratio{i}")
+            _divAsymmErrorsGraph(c,n, denominator)
         draw(c, "SKIP", opt="pe")
-#        c.Draw("same")
 
     axis(options.xtit, options.ratiotit)
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])

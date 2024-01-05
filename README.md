@@ -88,7 +88,18 @@ A good example of how `myop` can be use is the drawing script `draw.py`.
 The definition of the options is though not limited to preamble of the drawing script. You can define the option whenever you feel need in the script.
 Options in the command line can be repeated (the last set value wins) and they can be any valid python code.
 
-*Beware, there is not consistency checking among the command line and options.*
+An example drawing command for DATA/MC comparison:
+```sh
+export COMMON="legend=['DATA', 'MC']; msg=['Describe','the', 'plot'];legendpos='tl,Sl';msgsz=0.05;ratioto=1;ascale=[1, 1700/(99500./3714.)];drawopt=['root: hpe', 'root: h  fill'];"
+
+piroot data.root mc.root draw.py -p $COMMON"hist='var_a'; yrange=(10, 0.001, 20e3); rebin=4;out='comparison_of_var_a'"
+
+piroot data.root mc.root draw.py -p $COMMON"hist='var_b'; yrange=(10, 0.001, 1e3); logy=1;out='comparison_of_var_b'"
+...
+#and some more plots  
+```
+
+*Beware, that there is very limited checks of command line options.*
 That is, it will not catch typos for you!
 
 
@@ -98,6 +109,11 @@ That is, it will not catch typos for you!
 # Installation
 Not really needed, just make the directory where the python scripts reside (i.e. fast part of you PYTHONPATH).
 
+In order to use `piroot` and scripts in `scripts` subdir like `draw.py` one should
+run firs: `source install_dir/quick-root-plots/scripts/thisq.sh`.
+
+
+
+
 # TODO
-* expand move directives for other elements of the plot
 * a few more styles (like journal)?

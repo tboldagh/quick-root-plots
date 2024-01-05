@@ -88,7 +88,7 @@ def moveDirectives(directives, init=(0,0,0,0)):
 
 def posKey2Abs(posKey):
     if all( [ k not in posKey for k in pos.keys()] ):
-        raise Exception("No legend position "+posKey+ " there are possible: " +" ".join(list(pos.keys()) ))
+        raise Exception("No legend position "+str(posKey)+ " there are possible: " +" ".join(list(pos.keys()) ))
     directives=posKey.split(",")
     coord = pos[directives[0]]
 
@@ -370,11 +370,11 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
         ropt = ops[ops.index("root:")+1]
     else:
         ropt = opt
-    ropt =  ropt if len(_hists) == 0 else "same "+ropt
-
+    ropt =  ropt if len(_hists) == 0 else ropt+" same"
+    print(h.GetName(), ropt)
     h.Draw(ropt)
+    _hists.append( h )
     if label != "SKIP": # means to add to the legend
-        _hists.append( h )
         if 'p' not in opt:
             legendopt = legendopt.replace('p', '')
         _getLegend().AddEntry(h, label, legendopt)
@@ -463,8 +463,9 @@ def _followSubPads(pad, currentdir):
 
 
 def _save(cnv, name, dumpROOT=False, base ="plots"):
-    print(".. saving ", cnv.GetTitle(), " in the file ", name+".pdf")
+    print(".. saving ", cnv.GetTitle(), " in the file ", name+".pdf and .png" )
     cnv.SaveAs(name+".pdf")
+    cnv.SaveAs(name+".png")
     if dumpROOT:
         cnv.SaveAs( name + ".root" )
         # take all the graphs and histograms in all the pads and dump them independently
