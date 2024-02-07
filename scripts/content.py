@@ -3,7 +3,7 @@ for f in _files:
 
     def ldir(d, parent=""):
         for k in d.GetListOfKeys():
-            print((parent+"/" if parent else "")+ k.GetName(), k.GetClassName() )
+            print(parent+"/"+ k.GetName(), k.GetClassName() )
             if "Directory" in k.GetClassName():
-                ldir(d.Get(k.GetName()), parent+k.GetName())
+                ldir(d.Get(k.GetName()), parent+"/"+k.GetName())
     ldir(f)

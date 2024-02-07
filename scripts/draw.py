@@ -3,7 +3,7 @@ from myop import *
 options = myop(globals())
 
 options.hist="h_FCalET"
-options.drawopt="root: he" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
+options.drawopt="" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
 options.ylog=options.logy
@@ -70,18 +70,21 @@ if len(_files) == 1: # one input file, all hostograms read from it
 elif len(_files) == len(options.hist): # same number of inputs as histograms
     for hname, file in zip(options.hist, _files):
         h = file.Get(hname)
-        assert h, "Historgam " +hname+ " does not exist"
+        assert h, "Histogram " +hname+ " does not exist"
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
 elif len(options.hist) == 1:
     for file in _files:
         h = file.Get(options.cd+options.hist[0])
-        assert h, "Historgam " +options.hist[0]+ " does not exist in " +file.GetPath()
+        assert h, "Histogram " +options.hist[0]+ " does not exist in " +file.GetPath()
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
 assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
+
+hists = [ h.CreateGraph() if h.ClassName() == "TEfficiency" else h for h in hists ]
+
 
 if len(hists) <= 3:
     print(".. small number of histograms switching to contrast style")
@@ -299,9 +302,6 @@ if options.ratioto != None:
                 dest.SetPoint(p, x, ynum/yden)
                 dest.SetPointError(p, xErrLow, xErrHigh, yErrLow, yErrHigh)
 
-
-
-
     styleOffset(0)
     for i, num in enumerate(numerators):
         if num.ClassName() == "TProfile":
@@ -312,7 +312,7 @@ if options.ratioto != None:
             _divHist(c, num, denominator)
         elif num.ClassName() == "TGraphAsymmErrors":
             c = num.Clone(f"Ratio{i}")
-            _divAsymmErrorsGraph(c,n, denominator)
+            _divAsymmErrorsGraph(c,num, denominator)
         draw(c, "SKIP", opt="pe")
 
     axis(options.xtit, options.ratiotit)

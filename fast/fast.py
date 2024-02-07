@@ -345,7 +345,7 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
            - it contains basic ROOT Draw directives but can also explicit color specification
        legendopt - option to present on legend ()
        newData - can be set to false to keep the same style as previously drawn data
-       """
+       """    
     if label is None:
         label = h.GetName()
 
