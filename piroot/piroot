@@ -11,6 +11,7 @@ echo "" > $AFTER
 
 echo "import readline" >> $PRE
 echo "import rlcompleter" >> $PRE
+echo "readline.parse_and_bind(\"tab: complete\")" >> $PRE
 #echo "readline.parse_and_bind(\"bind -e\")" >> $PRE
 #echo "readline.parse_and_bind(\"bind '\t' rl_complete\")" >> $PRE
 
