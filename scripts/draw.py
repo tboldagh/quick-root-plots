@@ -13,7 +13,10 @@ options.xtit=None # axes titles
 options.ytit=None
 options.xlabel=None # either true, then labels are copied from source 1 input histogram or list of labels
 options.prof=False
+options.projx=False
 options.projy=False
+options.profx=False
+options.profy=False
 options.line=None
 options.fit=False
 options.xrange=None # ranges of the plot in x (10, 0, 5) = many ticks (10), in range 0 to 5
@@ -39,6 +42,7 @@ options.ratiorange=(0.45,1.55)
 options.ratiotit="Ratio"
 options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y
 options.ratioscale=None # scale ratio by a value
+options.rmargin=None
 
 options.internal=None
 options.cd="" # histograms from common path
@@ -111,7 +115,16 @@ if not options.layout:
 
 
 if options.projy:
-    [ h.ProjectionY() for h in hists ]
+    hists=[ h.ProjectionY(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
+
+if options.projx:
+    hists=[ h.ProjectionX(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
+
+if options.profy:
+    hists=[ h.ProfileY(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
+
+if options.profx:
+    hists=[ h.ProfileX(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.rebin:
     [ h.Rebin(options.rebin) for h in hists ]
@@ -120,7 +133,7 @@ if options.wscale:
     [ h.Scale(1, "width") for h in hists ]
 
 if options.escale:
-    [ h.Scale(1./h.GetEntries(), "width") for h in hists if h.GetEntries() > 1.0 ]
+    [ h.Scale(1./h.GetSumOfWeights(), "width") for h in hists ]
 
 if options.pscale != None:
     [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists ]
@@ -142,11 +155,16 @@ if not options.xrange:
 yr = options.yrange
 if not options.yrange:
     if "TH1" in hists[0].ClassName():
-        options.yrange = (10, hists[0].GetMinimum(), hists[0].GetMaximum()* (1.2 if options.ylog else 10) )
+        max_bincount = max(h.GetMaximum() for h in hists)*(10 if bool(options.logy)==True else 1.2)
+        min_bincount = min(h.GetMinimum() for h in hists) 
+        min_bincount = 10e-3*max_bincount if bool(options.logy)==True else min_bincount
+        options.yrange = (10, min_bincount, max_bincount)
     if "TH2" in hists[0].ClassName():
         options.yrange = (10, hists[0].GetYaxis().GetXmin(), hists[0].GetYaxis().GetXmax())
 assert options.xrange, "X range not specified"
 assert options.yrange, "Y range not specified"
+
+    
 
 if not options.ratioto is None:
     cnv(y=600)
@@ -157,6 +175,14 @@ else:
     cnv()
     ccnv(0).SetLogy(options.ylog)
     ccnv(0).SetLogx(options.xlog)
+
+if options.rmargin and options.ratioto is None:
+    ccnv().SetRightMargin(options.rmargin)
+
+if options.rmargin and options.ratioto:
+    ccnv(0).SetRightMargin(options.rmargin)
+    ccnv(1).SetRightMargin(options.rmargin)
+
 
 fr = frame(options.xrange, options.yrange)
 if options.zrange:

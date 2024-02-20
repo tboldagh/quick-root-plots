@@ -98,6 +98,7 @@ piroot data.root mc.root draw.py -p $COMMON"hist='var_b'; yrange=(10, 0.001, 1e3
 ...
 #and some more plots  
 ```
+Some more examples of how to automate plots making can be found in scripts/examples.sh
 
 *Beware, that there is very limited checks of command line options.*
 That is, it will not catch typos for you!
