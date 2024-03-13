@@ -322,6 +322,9 @@ if options.ratioto != None:
 
             ynum = numerator.GetPointY(p)
             yden = denominator.GetPointY(p)
+            if yden == 0 or ynum == 0:
+                print(f".... WARNING skipping point {p} in the ratio because either numerator {ynum} or denominator {yden} is zero")
+                continue
             yErrNumHigh = numerator.GetErrorYhigh(p)
             yErrNumLow = numerator.GetErrorYlow(p)
 
