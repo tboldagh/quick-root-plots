@@ -312,7 +312,7 @@ def cframe():
     global _hists
     if _hists[0].GetTitle() == "frame":
         return _hists[0]
-    raise "cframe: No frame histogram defined yet"
+    raise Exception("cframe: No frame histogram defined yet")
 
 def _getLegend():
     global _legend
@@ -380,9 +380,13 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
         _getLegend().AddEntry(h, label, legendopt)
     h.SetLineColor(color)
 
+    if 'h' in ropt and 'TGraph' in h.ClassName():
+        raise Exception('The h draw option given in: '+ropt+' can not be used for TGraphs or TEfficiency')
+
+
     if 'p' in ropt:
         h.SetMarkerColor(color)
-        h.SetMarkerStyle(marker)
+        h.SetMarkerStyle(marker)            
     else:
         h.SetMarkerColor(0)
         h.SetMarkerStyle(0)
@@ -391,7 +395,7 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
         h.SetFillColor(color)
         h.SetFillStyle(3001)
 
-    if "TGraphErrors" in h.ClassName() and "2" in ropt:
+    if 'TGraphErrors' in h.ClassName() and "2" in ropt:
         h.SetFillStyle(3001)
         h.SetFillColor(color)
 
@@ -432,7 +436,7 @@ def axis(x, y):
             h.GetYaxis().SetTitle(y)
             return
 
-    raise "No histogram named *frame*, axes title not set"
+    raise Exception("No histogram named *frame*, axes title not set")
 
 
 def yopen(factor):

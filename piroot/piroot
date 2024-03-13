@@ -98,4 +98,4 @@ then
 fi
 
 echo "...starting python"
-python3.10 $interactive .ll.py
+python3.12 $interactive .ll.py

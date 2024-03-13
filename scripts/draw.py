@@ -6,8 +6,6 @@ options.hist="h_FCalET"
 options.drawopt="" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
-options.ylog=options.logy
-options.xlog=options.logx
 options.zlog=0
 options.xtit=None # axes titles
 options.ytit=None
@@ -17,6 +15,7 @@ options.projx=False
 options.projy=False
 options.profx=False
 options.profy=False
+options.probins=None
 options.line=None
 options.fit=False
 options.xrange=None # ranges of the plot in x (10, 0, 5) = many ticks (10), in range 0 to 5
@@ -115,15 +114,23 @@ if not options.layout:
 
 
 if options.projy:
+    if options.probins:
+        [ h.GetXaxis().SetRange(*options.probins) for i,h in enumerate(hists) ]
     hists=[ h.ProjectionY(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.projx:
+    if options.probins:
+        [ h.GetYaxis().SetRange(*options.probins) for i,h in enumerate(hists) ]
     hists=[ h.ProjectionX(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.profy:
+    if options.probins:
+        [ h.GetXaxis().SetRange(*options.probins) for i,h in enumerate(hists) ]
     hists=[ h.ProfileY(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.profx:
+    if options.probins:
+        [ h.GetYaxis().SetRange(*options.probins) for i,h in enumerate(hists) ]
     hists=[ h.ProfileX(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.rebin:
@@ -166,15 +173,19 @@ assert options.yrange, "Y range not specified"
 
     
 
+
 if not options.ratioto is None:
     cnv(y=600)
     csplit(0.30)
-    ccnv(1).SetLogy(options.ylog)
-    ccnv(1).SetLogx(options.xlog)
+    ccnv(1).SetLogy(options.logy)
+    ccnv(1).SetLogx(options.logx)
+    ccnv(2).SetLogx(options.logx)
+    ccnv(1) # current pad
 else:
     cnv()
-    ccnv(0).SetLogy(options.ylog)
-    ccnv(0).SetLogx(options.xlog)
+    ccnv(0).SetLogy(options.logy)
+    ccnv(0).SetLogx(options.logx)
+
 
 if options.rmargin and options.ratioto is None:
     ccnv().SetRightMargin(options.rmargin)
@@ -207,9 +218,6 @@ if not options.ytit:
     options.ytit = hists[0].GetYaxis().GetTitle()
 
 axis(options.xtit,  options.ytit )
-if options.logx:
-    ccnv().SetLogx(1)
-
 
 if options.zlog:
     ccnv().SetLogz(1)
