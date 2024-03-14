@@ -86,7 +86,7 @@ elif len(options.hist) == 1:
 
 assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
 
-hists = [ h.CreateGraph() if h.ClassName() == "TEfficiency" else h for h in hists ]
+hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in hists ]
 
 
 if len(hists) <= 3:

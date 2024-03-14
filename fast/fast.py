@@ -3,6 +3,7 @@
 import ROOT
 
 _hists=[]
+_frames=[]
 _legend=None
 _legendpos="tr"
 _cnvs=[]
@@ -294,7 +295,7 @@ def frame(xr, yr=(1,0,1)):
     """ Make frame (axes), arguments are divisions & ranges for each axis packed in 2 element tuple
         e.g. (10, -1,1) means many divisions and range from -1 to 1
     """
-    global _hists
+    global _frames
     global _cnvs
     f = ROOT.TH2C("frame%d%d" % (len(_cnvs),_cnvs[0].GetNumber()), "frame", xr[0], xr[1], xr[2], yr[0], yr[1], yr[2])
     f.Draw()
@@ -304,15 +305,15 @@ def frame(xr, yr=(1,0,1)):
 #    f.GetYaxis().SetTitleOffset(2)
     f.GetYaxis().SetNdivisions(yr[0] + 100*5)
     f.GetYaxis().SetMaxDigits(3)
-    _hists.append(f)
+    _frames.append(f)
     return f
 
 def cframe():
     """Current flame"""
-    global _hists
-    if _hists[0].GetTitle() == "frame":
-        return _hists[0]
-    raise Exception("cframe: No frame histogram defined yet")
+    global _frames
+    if len(_frames[0]) ==  0:
+        raise Exception("cframe: No frame histogram defined yet")
+    return _frames[-1]
 
 def _getLegend():
     global _legend
@@ -348,7 +349,10 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
        """    
     if label is None:
         label = h.GetName()
-
+    def check_keywords(k):
+        if k in opt and not f'{k}:' in opt:
+            raise Exception(f"When using {k} option, use syntax: {k}: XYZ not {k} XYZ")
+    [check_keywords(k) for k in ['color', 'marker', 'root']]
     ops = opt.split(" ")
     marker = 0
     color = 0
@@ -428,9 +432,9 @@ def legend(posKey="tr", title = ""):
 
 def axis(x, y):
     """Label axes if the frame was used"""
-    global _hists
-    assert len(_hists) > 0, "No histograms to set axes"
-    for h in _hists[::-1]:
+    global _frames
+    assert len(_frames) > 0, "No frames to set axes"
+    for h in _frames[::-1]:
         if "frame" in h.GetName():
             h.GetXaxis().SetTitle(x)
             h.GetYaxis().SetTitle(y)
