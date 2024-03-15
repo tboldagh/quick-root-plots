@@ -219,6 +219,7 @@ if not options.ytit:
 
 axis(options.xtit,  options.ytit )
 
+
 if options.zlog:
     ccnv().SetLogz(1)
 
@@ -263,6 +264,7 @@ for index,m in enumerate(options.msg,1):
     else:
         texts.append( putlabel(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
 
+legend(options.legendpos) # redraw the legend (not clear why needed sometimes)
 
 if options.ratioto != None:
     if isinstance( options.ratioto, int):
@@ -364,8 +366,6 @@ if options.ratioto != None:
     one.SetLineColor(ROOT.kBlack)
 
     one.Draw("Same")
-
-
 
 
 
