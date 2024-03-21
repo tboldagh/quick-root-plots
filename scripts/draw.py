@@ -84,7 +84,8 @@ elif len(options.hist) == 1:
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
-assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
+if options.legend is not None:
+    assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
 
 hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in hists ]
 
@@ -105,13 +106,9 @@ if isinstance(options.msgpos, str):
 if isinstance(options.internal, str):
     xbl, ybl, xtr, ytr = posKey2Abs(options.internal)
     options.internal = (xbl, ytr)
-# if isinstance(options.legendpos, str):
-#     xbl, ybl, xtr, ytr = posKey2Abs(options.legendpos)
-#     options.legendpos = (xbl, ytr)
 
 if not options.layout:
     options.layout = '2d' if "TH2" in hists[0].ClassName() else None
-
 
 if options.projy:
     if options.probins:
@@ -185,6 +182,8 @@ else:
     cnv()
     ccnv(0).SetLogy(options.logy)
     ccnv(0).SetLogx(options.logx)
+    if options.layout == '2d' or options.layout == '2D':
+        ccnv().SetRightMargin(0.15)
 
 
 if options.rmargin and options.ratioto is None:
@@ -209,7 +208,7 @@ if options.xlabel:
     for bin, lab in zip( range(1, fr.GetXaxis().GetNbins()+1), labs ):
         fr.GetXaxis().SetBinLabel(bin, lab)
 
-if len(hists) > 1:
+if len(hists) > 1 and options.legend:
     legend(options.legendpos)
 
 if not options.xtit:
@@ -224,10 +223,8 @@ if options.zlog:
     ccnv().SetLogz(1)
 
 # drawing histograms
-for h, label, opt in zip(hists, options.legend, options.drawopt):
-    # h.SetLineColor(att[0])
-    # h.SetMarkerStyle(att[1])
-    # h.SetMarkerColor(att[0])
+legend_or_nothing = options.legend if options.legend else [""]*len(hists)
+for h, label, opt in zip(hists, legend_or_nothing, options.drawopt):
     print(("Drawing histogram {} with label {}".format(h.GetName(), label)))
     draw(h, label, opt=opt)
 
@@ -264,7 +261,8 @@ for index,m in enumerate(options.msg,1):
     else:
         texts.append( putlabel(options.msgpos[0], options.msgpos[1]-(options.msgsz+0.01)*index, m, options.msgsz) )
 
-legend(options.legendpos) # redraw the legend (not clear why needed sometimes)
+if options.legend:
+    legend(options.legendpos) # redraw the legend (not clear why needed sometimes)
 
 if options.ratioto != None:
     if isinstance( options.ratioto, int):
