@@ -374,7 +374,11 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
         ropt = ops[ops.index("root:")+1]
     else:
         ropt = opt
+        
     ropt =  ropt if len(_hists) == 0 else ropt+" same"
+    if 'TF1' in h.ClassName():
+        ropt = "l same"
+
     print(h.GetName(), ropt)
     h.Draw(ropt)
     _hists.append( h )

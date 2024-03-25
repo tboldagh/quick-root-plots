@@ -18,6 +18,7 @@ options.profy=False
 options.probins=None
 options.line=None
 options.fit=False
+options.fun=None # a function (or list of functions to draw)
 options.xrange=None # ranges of the plot in x (10, 0, 5) = many ticks (10), in range 0 to 5
 options.yrange=None 
 options.zrange=None
@@ -61,9 +62,10 @@ if isinstance(options.hist, str):
 options.histdraw = [(h.split(':')[1:]+[""])[0] for h in options.hist]
 options.hist = [h.split(':')[0] for h in options.hist]
 
+
 assert options.out, "out option has to be specified"
 assert len(_files) == 1 or len(_files) == len(options.hist) or len(options.hist) == 1, "Either single file is supported, or number of files needs to be the same as number of histograms"
-if len(_files) == 1: # one input file, all hostograms read from it
+if len(_files) == 1: # one input file, all histograms read from it
     for hname in options.hist:
         h = _file0.Get(hname)
         assert h, "Historgam " +hname+ " does not exist"
@@ -83,6 +85,11 @@ elif len(options.hist) == 1:
         assert h, "Histogram " +options.hist[0]+ " does not exist in " +file.GetPath()
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
+
+if options.fun:
+    assert options.xrange, "Functions drawing needs xrange defined"
+    min,max = options.xrange[1],options.xrange[2]
+    hists.extend( [ ROOT.TF1(f"fun{i}", f, min,max) for i,f in enumerate(options.fun) ] )
 
 if options.legend is not None:
     assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
