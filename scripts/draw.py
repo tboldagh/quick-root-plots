@@ -92,7 +92,7 @@ if options.fun:
     hists.extend( [ ROOT.TF1(f"fun{i}", f, min,max) for i,f in enumerate(options.fun) ] )
 
 if options.legend is not None:
-    assert len(hists) == len(options.legend), "Wrong number of legend elements {} vs {}".format([h.GetName() for h in hists], options.legend)
+    assert len(hists) == len(options.legend), "Wrong number of legend elements, histograms {} vs legend: {}".format([h.GetName() for h in hists], options.legend)
 
 hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in hists ]
 
@@ -133,14 +133,17 @@ if options.profy:
     hists=[ h.ProfileY(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
 if options.profx:
+    print(".. projection to profile in x")
     if options.probins:
         [ h.GetYaxis().SetRange(*options.probins) for i,h in enumerate(hists) ]
     hists=[ h.ProfileX(h.GetName()+f"_h{i}") for i,h in enumerate(hists) ]
 
-if options.rebin:
+if options.rebin != None:
+    print(".. Rebinning", options.rebin)
     [ h.Rebin(options.rebin) for h in hists ]
 
 if options.wscale:
+    print(".. Scaling by width")
     [ h.Scale(1, "width") for h in hists ]
 
 if options.escale:

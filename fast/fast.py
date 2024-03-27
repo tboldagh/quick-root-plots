@@ -375,7 +375,7 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
     else:
         ropt = opt
         
-    ropt =  ropt if len(_hists) == 0 else ropt+" same"
+    ropt = ropt+" same"
     if 'TF1' in h.ClassName():
         ropt = "l same"
 
