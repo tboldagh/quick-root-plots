@@ -3,7 +3,7 @@ from myop import *
 options = myop(globals())
 
 options.hist="h_FCalET"
-options.drawopt="" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
+options.drawopt="root: hp" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
 options.zlog=0
@@ -39,10 +39,13 @@ options.legend=[""] # names to be put on the legend
 options.legendpos="tr" # 
 options.ratioto=None # either the name or index from 0
 options.ratiorange=(0.45,1.55)
-options.ratiotit="Ratio"
 options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y
+options.ratiotit="Ratio"
 options.ratioscale=None # scale ratio by a value
 options.rmargin=None
+options.xcnv=500
+options.peaks=None
+
 
 options.internal=None
 options.cd="" # histograms from common path
@@ -86,15 +89,14 @@ elif len(options.hist) == 1:
         print("Histogram ", h.GetName(), " read from ", file.GetName()) #, " entries ", h.GetEntries()
         hists.append(h)
 
+functions=[]
 if options.fun:
     assert options.xrange, "Functions drawing needs xrange defined"
-    min,max = options.xrange[1],options.xrange[2]
-    hists.extend( [ ROOT.TF1(f"fun{i}", f, min,max) for i,f in enumerate(options.fun) ] )
+    min,max = options.xrange[1],options.xrange[2]    
+    functions.extend( [ ROOT.TF1(f"fun{i}", f, min,max) for i,f in enumerate(options.fun) ] )
 
 if options.legend is not None:
     assert len(hists) == len(options.legend), "Wrong number of legend elements, histograms {} vs legend: {}".format([h.GetName() for h in hists], options.legend)
-
-hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in hists ]
 
 
 if len(hists) <= 3:
@@ -140,7 +142,7 @@ if options.profx:
 
 if options.rebin != None:
     print(".. Rebinning", options.rebin)
-    [ h.Rebin(options.rebin) for h in hists ]
+    [ rebin(h,options.rebin) for h in hists ]
 
 if options.wscale:
     print(".. Scaling by width")
@@ -149,17 +151,18 @@ if options.wscale:
 if options.escale:
     [ h.Scale(1./h.GetSumOfWeights(), "width") for h in hists ]
 
-if options.pscale != None:
-    [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists ]
+if options.pscale != None:    
+    [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists  ]
 
 if options.ascale != None:
     print("... applying scale factors ", options.ascale)
     assert len(options.ascale) == len(hists), "Need the same number of scale factors "+ options.ascale +" as number of hists" + len(hists)
     [ h.Scale(float(s)) for s,h in zip(options.ascale, hists) ]
 
-
 if options.rebin2D:
-    [ h.Rebin2D(options.rebin2D[0], options.rebin2D[1])  for h in hists ]
+    [ h.Rebin2D(options.rebin2D[0], options.rebin2D[1])  for h in hists if h.ClassName().startswith("TH")]
+
+hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in hists ]
 
 
 ROOT.gStyle.SetPalette(1)
@@ -171,25 +174,25 @@ if not options.yrange:
     if "TH1" in hists[0].ClassName():
         max_bincount = max(h.GetMaximum() for h in hists)*(10 if bool(options.logy)==True else 1.2)
         min_bincount = min(h.GetMinimum() for h in hists) 
-        min_bincount = 10e-3*max_bincount if bool(options.logy)==True else min_bincount
+        min_bincount = 10e-4*max_bincount if bool(options.logy)==True else min_bincount
         options.yrange = (10, min_bincount, max_bincount)
     if "TH2" in hists[0].ClassName():
         options.yrange = (10, hists[0].GetYaxis().GetXmin(), hists[0].GetYaxis().GetXmax())
 assert options.xrange, "X range not specified"
 assert options.yrange, "Y range not specified"
 
-    
+
 
 
 if not options.ratioto is None:
-    cnv(y=600)
+    cnv(x=options.xcnv, y=600)
     csplit(0.30)
     ccnv(1).SetLogy(options.logy)
     ccnv(1).SetLogx(options.logx)
     ccnv(2).SetLogx(options.logx)
     ccnv(1) # current pad
 else:
-    cnv()
+    cnv(x=options.xcnv)
     ccnv(0).SetLogy(options.logy)
     ccnv(0).SetLogx(options.logx)
     if options.layout == '2d' or options.layout == '2D':
@@ -238,10 +241,15 @@ for h, label, opt in zip(hists, legend_or_nothing, options.drawopt):
     print(("Drawing histogram {} with label {}".format(h.GetName(), label)))
     draw(h, label, opt=opt)
 
+if options.peaks:
+    h.ShowPeaks()
+
 if options.zlog or options.zrange:
     ccnv().SetLeftMargin(0.15)
     fr.GetYaxis().SetTitleOffset(1.0)
 
+if options.xcnv != 500:
+    ccnv().SetLeftMargin(0.15*500/options.xcnv)
 
 if options.prof:
     prof = h.ProfileX()
@@ -315,7 +323,7 @@ if options.ratioto != None:
             dest.Add(numerator, denominator, -1.0)
             dest.Divide(dest, denominator, 1.0, 1.0, "B")
         elif options.ratiotype == "pull":
-            uncertainties = [ numerator.GetBinError(b) for b in allbins(n)]
+            uncertainties = [ numerator.GetBinError(b) for b in allbins(numerator)]
             dest.Add(numerator, denominator, -1.0)            
             for b, u in zip(allbins(c), uncertainties):
                 print(b , u)
@@ -360,7 +368,7 @@ if options.ratioto != None:
         elif num.ClassName() == "TGraphAsymmErrors":
             c = num.Clone(f"Ratio{i}")
             _divAsymmErrorsGraph(c,num, denominator)
-        draw(c, "SKIP", opt="pe")
+        draw(c, "SKIP", opt=options.drawopt[i])
 
     axis(options.xtit, options.ratiotit)
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])

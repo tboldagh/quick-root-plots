@@ -96,6 +96,12 @@ if [ "$PYTHONSTARTUP" != ""  -a -f "$PYTHONSTARTUP" ]
 then
     cat $PYTHONSTARTUP >> .ll.py
 fi
+PYVER=`root-config --python3-version`
+if [ ! `which python${PYVER}`]
+then
+    PYVER=`root-config --python3-version | cut -d"." -f-2`
+fi
+PYCMD=python${PYVER}
 
 echo "...starting python"
-python3.12 $interactive .ll.py
+${PYCMD} $interactive .ll.py

@@ -475,9 +475,20 @@ def _followSubPads(pad, currentdir):
 
 
 def _save(cnv, name, dumpROOT=False, base ="plots"):
-    print(".. saving ", cnv.GetTitle(), " in the file ", name+".pdf and .png" )
-    cnv.SaveAs(name+".pdf")
-    cnv.SaveAs(name+".png")
+    anyformat=False
+    if name.endswith(".pdf"):
+        anyformat=True
+        print(".. saving ", cnv.GetTitle(), " in the file ", name )        
+        cnv.SaveAs(name)
+    if name.endswith(".png") : # require only specific formats
+        anyformat=True
+        print(".. saving ", cnv.GetTitle(), " in the file ", name )
+        cnv.SaveAs(name)
+    if not anyformat:
+        print(".. saving ", cnv.GetTitle(), " in the file ", name, "in pdf and png")
+        cnv.SaveAs(name+'.pdf')
+        cnv.SaveAs(name+'.png')
+
     if dumpROOT:
         cnv.SaveAs( name + ".root" )
         # take all the graphs and histograms in all the pads and dump them independently
@@ -581,6 +592,17 @@ def tograph(h):
     if "TGraph" in h.ClassName():
         return h
     return ROOT.TGraphErrors(h)
+
+def rebin(h, n):
+    """Rebin using root rebinning for plain hists, do custom action for TEfficiency"""
+    if "TH1" in h.ClassName():
+        h.Rebin(n)
+    if "TEfficiency" in h.ClassName():
+        num = h.GetPassedHistogram()
+        den = h.GetTotalHistogram()
+        num.Rebin(n)
+        den.Rebin(n)
+        h = ROOT.TEfficiency(num, den)
 
 def movex(graph, offset):
     for p in range(graph.GetN()):
