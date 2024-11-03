@@ -60,6 +60,21 @@ do
         '-q')
             interactive=""
             ;;
+        '-l')
+            echo "Available scripts:"
+            ls $QUICK_ROOT_PLOTS/ | grep .py
+            exit 0
+            ;;
+        '-h')
+            echo "Usage: piroot [OPTIONS] [FILES]"
+            echo "Options:"
+            echo "  -p    Execute code before loading ROOT"
+            echo "  -a    Execute code after loading ROOT"
+            echo "  -q    Run in non-interactive mode"
+            echo "  -h    Show this help message"
+            echo "  -l    List scripts comming with the piroot"
+            exit 0
+        ;;
         *)
             f=${OPTION}
             if [[ "$f" =~ .*".py" ]]

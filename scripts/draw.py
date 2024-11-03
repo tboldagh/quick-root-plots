@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.10
 from myop import *
 options = myop(globals())
-
+options.help=False
 options.hist="h_FCalET"
 options.drawopt="root: hp" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
@@ -15,6 +15,7 @@ options.projx=False
 options.projy=False
 options.profx=False
 options.profy=False
+options.shifts=None
 options.probins=None
 options.line=None
 options.fit=False
@@ -37,6 +38,7 @@ options.rebin=None # rebining e.g. when set to 2 two bins will be merged
 options.layout=None # 2d for 2D hists
 options.legend=[""] # names to be put on the legend
 options.legendpos="tr" # 
+options.legendcols=1 # number of legend columns
 options.ratioto=None # either the name or index from 0
 options.ratiorange=(0.45,1.55)
 options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y
@@ -45,10 +47,8 @@ options.ratioscale=None # scale ratio by a value
 options.rmargin=None
 options.xcnv=500
 options.peaks=None
-
-
-options.internal=None
-options.cd="" # histograms from common path
+options.internal=None # add ATLAS internal labels
+options.cd="" # histograms from a common path
 
 from fast import *
 
@@ -181,8 +181,18 @@ if not options.yrange:
 assert options.xrange, "X range not specified"
 assert options.yrange, "Y range not specified"
 
-
-
+if options.shifts:
+    for h, shift in zip(hists, options.shifts):
+        if "TGraph" in h.ClassName():
+            for i in range(h.GetN()):
+                x, y = ROOT.Double(0), ROOT.Double(0)
+                h.GetPoint(i, x, y)
+                h.SetPoint(i, x+shift, y)
+        else:
+            print("Can not shift points in other type of plots than TGraphs")
+            import sys
+            sys.exit(1)
+ 
 
 if not options.ratioto is None:
     cnv(x=options.xcnv, y=600)
@@ -222,7 +232,8 @@ if options.xlabel:
         fr.GetXaxis().SetBinLabel(bin, lab)
 
 if len(hists) > 1 and options.legend:
-    legend(options.legendpos)
+    l = legend(options.legendpos)
+    l.SetNColumns(options.legendcols)
 
 if not options.xtit:
     options.xtit = hists[0].GetXaxis().GetTitle()
@@ -364,6 +375,7 @@ if options.ratioto != None:
             _divHist(c, num, denominator)
         elif "TH1" in num.ClassName():
             c = num.Clone(num.GetName()+f"Ratio{i}")
+            c.SetFillStyle(0)
             _divHist(c, num, denominator)
         elif num.ClassName() == "TGraphAsymmErrors":
             c = num.Clone(f"Ratio{i}")

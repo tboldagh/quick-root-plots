@@ -14,6 +14,9 @@ class myop(object):
             del myop.__scope[name] # clean global namespace
         else:
             super(myop, self).__setattr__(name, val)
+            if hasattr(self, "help") and self.help:
+                print ('...help on command line option ..',name, "default:",val)
+
 
     def run_args(self):
         args=''

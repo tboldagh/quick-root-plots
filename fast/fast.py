@@ -370,6 +370,11 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
         marker = attrs[_styleOffset][1]
     global _hists
 
+    if 'fill' in ops:
+        h.SetFillColorAlpha(color, 0.5)
+        h.SetFillStyle(1001)
+        ops.remove('fill')
+
     if "root:" in ops:
         ropt = ops[ops.index("root:")+1]
     else:
@@ -378,6 +383,7 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
     ropt = ropt+" same"
     if 'TF1' in h.ClassName():
         ropt = "l same"
+
 
     print(h.GetName(), ropt)
     h.Draw(ropt)
@@ -398,10 +404,6 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
     else:
         h.SetMarkerColor(0)
         h.SetMarkerStyle(0)
-
-    if 'fill' in ops:
-        h.SetFillColor(color)
-        h.SetFillStyle(3001)
 
     if 'TGraphErrors' in h.ClassName() and "2" in ropt:
         h.SetFillStyle(3001)
