@@ -30,10 +30,26 @@ class myop(object):
             args += repr(self.__getattribute__(attr))
             args += ';'
         return args
+    
+    def save(self, filename):
+        """ Save options for reuse """
+        fullfname="plots/"+filename+".sh"
+
+        with open(fullfname, "w") as f:            
+            f.write('piroot ')
+            f.write(' '.join([f.GetName() for f in self.__scope['_files']]))
+            f.write(' '+ self.__scope['_script']+' -p ')
+            f.write(' \\\n')
+            f.write('"')
+            f.write(
+                ";".join([f'{var}={repr(value)}' for var,value in self.__dict__.items() if var != 'interactive'])
+            )
+            f.write('"')
+
+        # print ('...saved used options in ', fullfname)
 
 def run_args(options):
     return options.run_args()
-
 
 if __name__ == "__main__":
     print ("""\

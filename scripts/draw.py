@@ -8,7 +8,7 @@ options.logx=0
 options.logy=0
 options.zlog=0
 options.xtit=None # axes titles
-options.ytit=None
+options.ytit=None   
 options.xlabel=None # either true, then labels are copied from source 1 input histogram or list of labels
 options.prof=False
 options.projx=False
@@ -398,6 +398,7 @@ if options.ratioto != None:
 
 
 save(options.out)
+options.save(options.out)
 print("after manual modification s() can save again, s(other) can save with 'other' name")
 def s(name=options.out):
     """ for saving again """
