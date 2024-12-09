@@ -597,7 +597,7 @@ def tograph(h):
 
 def rebin(h, n):
     """Rebin using root rebinning for plain hists, do custom action for TEfficiency"""
-    if "TH1" in h.ClassName():
+    if "TH1" in h.ClassName() or "TProfile" in h.ClassName():
         h.Rebin(n)
     if "TEfficiency" in h.ClassName():
         num = h.GetPassedHistogram()
