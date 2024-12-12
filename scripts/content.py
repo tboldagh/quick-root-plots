@@ -3,7 +3,9 @@ for f in _files:
 
     def ldir(d, parent=""):
         for k in d.GetListOfKeys():
-            print(parent+"/"+ k.GetName(), k.GetClassName() )
+            fullname=parent.lstrip("/")+"/"+ k.GetName()
+            obj = f.Get(fullname.lstrip("/"))
+            print(f"{fullname:<60}", k.GetClassName(),  "Entries: "+str(obj.GetEntries()) if hasattr(obj, "GetEntries") else "")
             if "Directory" in k.GetClassName():
-                ldir(d.Get(k.GetName()), parent+"/"+k.GetName())
+                ldir(d.Get(k.GetName()), fullname)
     ldir(f)
