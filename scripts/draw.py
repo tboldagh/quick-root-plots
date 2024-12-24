@@ -49,7 +49,7 @@ options.xcnv=500
 options.peaks=None
 options.internal=None # add ATLAS internal labels
 options.cd="" # histograms from a common path
-
+options.stat=None # counts
 from fast import *
 
 style("atlas")
@@ -250,6 +250,8 @@ if options.zlog:
 legend_or_nothing = options.legend if options.legend else [""]*len(hists)
 for h, label, opt in zip(hists, legend_or_nothing, options.drawopt):
     print(("Drawing histogram {} with label {}".format(h.GetName(), label)))
+    if options.stat and 'count' in options.stat:
+        label+= f" c: {h.GetEntries():.2E}"
     draw(h, label, opt=opt)
 
 if options.peaks:

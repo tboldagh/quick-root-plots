@@ -464,7 +464,7 @@ def _savePrimitive (obj):
 def _followSubPads(pad, currentdir):
     listOfPrimitives  = pad.GetListOfPrimitives()
     for obj in listOfPrimitives:
-        print("..... found ", obj.GetName())
+#        print("..... found ", obj.GetName())
 
         if obj.InheritsFrom("TPad"):
             subdir = currentdir.mkdir(obj.GetName(), obj.GetTitle())
