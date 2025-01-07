@@ -168,7 +168,8 @@ hists = [ h.CreateGraph("e0") if h.ClassName() == "TEfficiency" else h for h in 
 ROOT.gStyle.SetPalette(1)
 if not options.xrange:
     options.xrange = (10, hists[0].GetXaxis().GetXmin(), hists[0].GetXaxis().GetXmax())
-    print("Extracted xrange from the first histogram", options.xrange)
+    print("... Extracted xrange from the first histogram", options.xrange)
+
 yr = options.yrange
 if not options.yrange:
     if "TH1" in hists[0].ClassName():
@@ -178,6 +179,11 @@ if not options.yrange:
         options.yrange = (10, min_bincount, max_bincount)
     if "TH2" in hists[0].ClassName():
         options.yrange = (10, hists[0].GetYaxis().GetXmin(), hists[0].GetYaxis().GetXmax())
+    if "TGraph" in hists[0].ClassName():
+        points = [ hists[0].GetPointY(p) for p in range(h.GetN())]
+        min_val, max_val = min(points), max(points)
+        options.yrange = (10, min_val-0.2*(max_val-min_val), max_val+0.2*(max_val-min_val))
+
 assert options.xrange, "X range not specified"
 assert options.yrange, "Y range not specified"
 
