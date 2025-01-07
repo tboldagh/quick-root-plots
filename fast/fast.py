@@ -8,6 +8,7 @@ _legend=None
 _legendpos="tr"
 _cnvs=[]
 _styleOffset=-1
+_other=[]
 
 attrsDefault = [(ROOT.kGray+3, ROOT.kFullCircle),
        (ROOT.kOrange-7, ROOT.kFullSquare),
@@ -564,7 +565,6 @@ def putlabel(posXOrKey, posYOrText, textOrFont=None, sz=0.1):
     """Puts label in absolute position or in position given by the key"""
     if isinstance(posXOrKey, str):
         coords=posKey2Abs(posXOrKey)
-        print("label pos", coords)
         _putlabelABS(coords[0], coords[-1], posYOrText, textOrFont if textOrFont else sz)
     else:
         _putlabelABS(posXOrKey, posYOrText, textOrFont, sz)
@@ -610,3 +610,21 @@ def movex(graph, offset):
     for p in range(graph.GetN()):
         pos = graph.GetPointX(p)
         graph.SetPointX(p, pos+offset)
+
+def hline(pos=0, min=None, max=None):
+    global _frames
+    if max is None:
+        max = _frames[0].GetXaxis().GetXmax()
+
+    if min is None:
+        min = _frames[0].GetXaxis().GetXmin()
+
+    line = ROOT.TF1("line", "pol0", min, max)
+    line.SetParameter(0, pos)
+    line.SetLineWidth(1)
+    line.SetLineColor(ROOT.kBlack)
+    line.SetLineStyle(ROOT.kDashed)
+    line.Draw("same")
+    global _other
+    _other.append(line)
+
