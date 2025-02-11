@@ -6,7 +6,7 @@ options.hist="h_FCalET"
 options.drawopt="root: hp" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
-options.zlog=0
+options.logz=0
 options.xtit=None # axes titles
 options.ytit=None   
 options.xlabel=None # either true, then labels are copied from source 1 input histogram or list of labels
@@ -66,7 +66,6 @@ options.histdraw = [(h.split(':')[1:]+[""])[0] for h in options.hist]
 options.hist = [h.split(':')[0] for h in options.hist]
 
 
-assert options.out, "out option has to be specified"
 assert len(_files) == 1 or len(_files) == len(options.hist) or len(options.hist) == 1, "Either single file is supported, or number of files needs to be the same as number of histograms"
 if len(_files) == 1: # one input file, all histograms read from it
     for hname in options.hist:
@@ -249,7 +248,7 @@ if not options.ytit:
 axis(options.xtit,  options.ytit )
 
 
-if options.zlog:
+if options.logz:
     ccnv().SetLogz(1)
 
 # drawing histograms
@@ -263,7 +262,7 @@ for h, label, opt in zip(hists, legend_or_nothing, options.drawopt):
 if options.peaks:
     h.ShowPeaks()
 
-if options.zlog or options.zrange:
+if options.logz or options.zrange:
     ccnv().SetLeftMargin(0.15)
     fr.GetYaxis().SetTitleOffset(1.0)
 
@@ -404,10 +403,13 @@ if options.ratioto != None:
     one.Draw("Same")
 
 
-
-save(options.out)
-options.save(options.out)
-print("after manual modification s() can save again, s(other) can save with 'other' name")
-def s(name=options.out):
-    """ for saving again """
-    save(name)
+if options.out:
+    save(options.out)
+    options.save(options.out)
+    print("after manual modification s() can save again, s(other) can save with 'other' name")
+    def s(name=options.out):
+        """ for saving again """
+        save(name)
+else:
+    ccnv().Update()
+    print(".. WARNING this plot is not saved WARNING .., use out option")
