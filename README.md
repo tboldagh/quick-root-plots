@@ -8,7 +8,7 @@ Python version 3 is required (tested on 3.9).
 from fast import *
 h = get(_file0, "histoX")
 h = get(_file0, "histoY")
-cnv() # a canvas (can be skipped)
+cnv() # a canvas
 frame((10, 0, 10), (10, 0, 100)) # define axes ranges (not needed if histograms have reasonable ranges already), but often convenient to use
 axis("size [mm]", "count") # label axes (not needed if original histograms have reasonably named axes)
 
@@ -50,7 +50,7 @@ In addition they key can be supplemented by move/resize directives that are:
 * `n` to make object narrower and 
 * `s` shorter
 * `t` taller. 
-Capital move directives move by 3 quants, i..e LU is the same as llluuu.
+Capital move directives move by 3 quants, i.e. LU is the same as llluuu.
 # piroot 
 Is a wrapper of python + ROOT that allows to execute following comamnds:
 ```
@@ -103,6 +103,29 @@ Some more examples of how to automate plots making can be found in scripts/examp
 *Beware, that there is very limited checks of command line options.*
 That is, it will not catch typos for you!
 
+# Included scripts
+There is couple of "small" scripts included that are ready to be used for making quite a diverse set of plots. First of all `draw.py` can be used to draw same histogram from multiple files, multiple hitograms from one file and nearly all settings of the plot can be customised from command line. See the source code for all the options.
+
+A simpler version, `simple.py` just good for signle histogram an only af few customizations available through command line.  
+
+A useful script called `content.py` can be used to list content of the ROOT file like this:
+``sh
+piroot -q file.root content.py 
+``
+
+For interactive exploration of the ROOT file with python the `browse.py` script is provided. It repackages ROOT file as full fledged python object. An example of interactive discovery of histogram and plotting is shown below.
+``sh
+piroot basic_checks.root browse.py
+...starting python
+- - - - - - - - - - - - - - - - - - - - welcome to piROOT - opening files - - - - - - - - - - - - - - - - - - - -
+.opening basic_checks.root
+. indexing file content (every / is dir, every * is object )
+///../../../../../.......................................................................................... done
+. this is interactive browser of the ROOT file
+. to browse file with tab completion start with typing: ro. and hit <TAB>
+ro.<TAB> << try this
+ro.basic_checks.NChR.Draw("hpe")
+``
 
 
 

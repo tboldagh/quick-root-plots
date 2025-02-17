@@ -477,7 +477,7 @@ def _followSubPads(pad, currentdir):
             _savePrimitive( obj )
 
 
-def _save(cnv, name, dumpROOT=False, base ="plots"):
+def _save(cnv, name, dumpROOT=False):
     anyformat=False
     if name.endswith(".pdf"):
         anyformat=True
@@ -514,9 +514,8 @@ def _saveToDir( cnv,  dirn,  name, dumpROOT=False):
     ROOT.gSystem.ChangeDirectory(dirn)
     # print(".. changed to directory "+dirn)
 
-    _save(cnv, name, dumpROOT, "")
+    _save(cnv, name, dumpROOT)
     ROOT.gSystem.ChangeDirectory(startdir)
-
 
 
 def save(name, dumpROOT=False):
@@ -526,7 +525,10 @@ def save(name, dumpROOT=False):
     global _legendpos
     ROOT.gStyle.SetOptTitle(0)
     _cnvs[-1].Update()
-    _saveToDir(_cnvs[-1], "plots", name, dumpROOT=dumpROOT)
+    import os
+    plotsdir = os.environ.get("QPLOTDIR", "plots") 
+
+    _saveToDir(_cnvs[-1], plotsdir, name, dumpROOT=dumpROOT)
 
 def s(name):
     """A abbreviated save"""
@@ -553,8 +555,8 @@ def _putlabelABS(locx, locy, text, sz=0.1):
         locx = 1 + locx
     if locy < 0:
         locy = 1 + locy
-    l = ROOT.TLatex(); #l.SetTextAlign(12);
-    l.SetTextSize(sz);
+    l = ROOT.TLatex() #l.SetTextAlign(12);
+    l.SetTextSize(sz)
     l.SetNDC()
     l.SetTextFont(42)
     l.SetTextColor(ROOT.kBlack)

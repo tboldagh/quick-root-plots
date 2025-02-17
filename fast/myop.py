@@ -33,7 +33,8 @@ class myop(object):
     
     def save(self, filename):
         """ Save options for reuse """
-        fullfname="plots/"+filename+".sh"
+        import os
+        fullfname=os.environ.get("QPLOTDIR", "plots")+"/"+filename+".sh"
 
         with open(fullfname, "w") as f:            
             f.write('piroot ')
