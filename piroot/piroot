@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #author Tomasz Bold AGH-UST, Krakow
-
+echo ".runing:" $0 $@
 LP=.load.py
 echo "" > $LP
 PRE=.before_load.py
@@ -17,6 +17,7 @@ echo "readline.parse_and_bind(\"tab: complete\")" >> $PRE
 
 echo "import ROOT" >> $PRE
 echo "print ('- '*20+'welcome to piROOT - opening files'+' -'*20)" >> $PRE
+echo "import sys" >> $PRE
 echo "global _files" >> $PRE
 echo "_files=[]" >> $PRE
 
