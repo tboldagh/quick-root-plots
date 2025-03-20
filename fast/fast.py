@@ -9,6 +9,7 @@ _legendpos="tr"
 _cnvs=[]
 _styleOffset=-1
 _other=[]
+_memo=[]
 
 attrsDefault = [(ROOT.kGray+3, ROOT.kFullCircle),
        (ROOT.kOrange-7, ROOT.kFullSquare),
@@ -27,10 +28,10 @@ attrs = attrsDefault
 
 attrsHollow = [(ROOT.kGray+3, ROOT.kOpenCircle),
        (ROOT.kOrange-7, ROOT.kOpenSquare),
-       (ROOT.kSpring+4, ROOT.kOpenDiamond),
+       (ROOT.kSpring+4, ROOT.kOpenCrossX),
        (ROOT.kRed-3, ROOT.kOpenTriangleDown),
        (ROOT.kBlue-6, ROOT.kOpenTriangleUp),
-       (ROOT.kMagenta+1, ROOT.kOpenStar),
+       (ROOT.kMagenta+1, ROOT.kOpenDiamond),
     ]
 
 def few():
@@ -44,6 +45,7 @@ def few():
 
 def polySet(which="default"):
     """Select which set of polymarkers & colors to use"""
+    global attrs
     if which == "default":
         attrs = attrsDefault
     if which == "hollow":
@@ -135,7 +137,7 @@ def setattrs(newattrs):
     global attrs
     attrs = newattrs
 
-def styleOffset(n = 0):
+def styleOffset(n = -1):
     global _styleOffset
     _styleOffset = n
 
@@ -150,7 +152,7 @@ def clear():
     _legend=None
     _legendpos="tr"
     _cnvs=[]
-    _styleOffset=0
+    _styleOffset=-1
 
 
 def get(src, name, default_if_missing=None):
@@ -283,10 +285,13 @@ def ccnv(pad=0):
     return _cnvs[0].GetPad(pad)
 
 def new():
-    """Prepare for a new plot in one scipt"""
+    """Prepare for a new plot in one script"""
     global _hists
+    global _memo
+    _memo.append(_hists)
     _hists = []
     global _legend
+    _memo.append(_legend)
     _legend = None
     styleOffset( )
     return cnv()
@@ -398,10 +403,11 @@ def draw(h, label="", opt="", legendopt="lp", newData=True):
     if 'h' in ropt and 'TGraph' in h.ClassName():
         raise Exception('The h draw option given in: '+ropt+' can not be used for TGraphs or TEfficiency')
 
-
+    _visuallyLargeMarkers = set([ROOT.kOpenCircle, ROOT.kFullCircle, ROOT.kOpenSquare, ROOT.kFullSquare])
     if 'p' in ropt:
         h.SetMarkerColor(color)
-        h.SetMarkerStyle(marker)            
+        h.SetMarkerStyle(marker)
+        h.SetMarkerSize(0.8 + (0.2 if (marker not in _visuallyLargeMarkers) else 0))            
     else:
         h.SetMarkerColor(0)
         h.SetMarkerStyle(0)
