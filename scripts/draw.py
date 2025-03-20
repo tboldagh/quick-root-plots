@@ -41,7 +41,7 @@ options.legendpos="tr" #
 options.legendcols=1 # number of legend columns
 options.ratioto=None # either the name or index from 0
 options.ratiorange=(0.45,1.55)
-options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y
+options.ratiotype="ratio" # other: diff - plots y - ref, rel - plots (y - ref) / ref, pull - (y - ref)/sigma y, if interpol is used values of y are interpolated
 options.ratiotit="Ratio"
 options.ratioscale=None # scale ratio by a value
 options.rmargin=None
@@ -333,14 +333,14 @@ if options.ratioto != None:
 
 
     def _divHist(dest, numerator, denominator):
-        if options.ratiotype == "ratio":
+        if "ratio" in options.ratiotype :            
             dest.Divide(numerator, denominator, 1.0, 1.0, "B")
-        elif options.ratiotype == "diff":
+        elif "diff" in options.ratiotype :
             dest.Add(denominator, -1.0)
-        elif options.ratiotype == "rel":
+        elif "rel" in options.ratiotype :
             dest.Add(numerator, denominator, -1.0)
             dest.Divide(dest, denominator, 1.0, 1.0, "B")
-        elif options.ratiotype == "pull":
+        elif "pull" in options.ratiotype :
             uncertainties = [ numerator.GetBinError(b) for b in allbins(numerator)]
             dest.Add(numerator, denominator, -1.0)            
             for b, u in zip(allbins(c), uncertainties):
@@ -352,11 +352,14 @@ if options.ratioto != None:
 
     def _divAsymmErrorsGraph(dest, numerator, denominator):
         for p in range(numerator.GetN()):
-            x = numerator.GetPointX(p)
+            x = denominator.GetPointX(p)
             xErrHigh = numerator.GetErrorXhigh(p)
             xErrLow = numerator.GetErrorXlow(p)
 
             ynum = numerator.GetPointY(p)
+            if "interpol" in options.ratiotype:
+                ynum = numerator.Eval(x)
+
             yden = denominator.GetPointY(p)
             if yden == 0 or ynum == 0:
                 print(f".... WARNING skipping point {p} in the ratio because either numerator {ynum} or denominator {yden} is zero")
@@ -371,7 +374,7 @@ if options.ratioto != None:
             yErrLow = math.sqrt(sq(ynum/yden)*( sq(yErrNumLow/ynum) + sq(yErrDenLow/yden) ))
             yErrHigh = math.sqrt(sq(ynum/yden)*( sq(yErrNumHigh/ynum) +  sq(yErrDenHigh/yden) ))
 
-            if options.ratiotype == "ratio":
+            if "ratio" in options.ratiotype:
                 dest.SetPoint(p, x, ynum/yden)
                 dest.SetPointError(p, xErrLow, xErrHigh, yErrLow, yErrHigh)
 
@@ -391,7 +394,7 @@ if options.ratioto != None:
 
     axis(options.xtit, options.ratiotit)
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])
-    if options.ratiotype == "ratio":
+    if "ratio" in options.ratiotype:
         one.SetParameter(0, 1)
     else:
         one.SetParameter(0, 0)
