@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.10
 from myop import *
 options = myop(globals())
+
 options.help=False
 options.hist="h_FCalET"
 options.drawopt="root: hp" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
@@ -36,7 +37,7 @@ options.msgsz=0.03
 options.out=None # output file name
 options.rebin=None # rebining e.g. when set to 2 two bins will be merged
 options.layout=None # 2d for 2D hists
-options.legend=[""] # names to be put on the legend
+options.legend=None # names to be put on the legend
 options.legendpos="tr" # 
 options.legendcols=1 # number of legend columns
 options.ratioto=None # either the name or index from 0
@@ -50,6 +51,8 @@ options.peaks=None
 options.internal=None # add ATLAS internal labels
 options.cd="" # histograms from a common path
 options.stat=None # counts
+
+
 from fast import *
 
 style("atlas")
@@ -97,10 +100,16 @@ if options.fun:
 if options.legend is not None:
     assert len(hists) == len(options.legend), "Wrong number of legend elements, histograms {} vs legend: {}".format([h.GetName() for h in hists], options.legend)
 
+if options.legend is None:
+    options.legend = options.hist if isinstance(options.hist, list) else [options.hist+" "+f.GetName() for f in _files]
+
 
 if len(hists) <= 3:
     print(".. small number of histograms switching to contrast style")
     few()
+
+assert len(hists) <= maxAutoPlots(), f"Too many plots {len(hists)}, max handled is {maxAutoPlots()}"
+
 
 if isinstance(options.drawopt, str):
     options.drawopt = [options.drawopt]*len(hists)
@@ -391,6 +400,7 @@ if options.ratioto != None:
             c = num.Clone(f"Ratio{i}")
             _divAsymmErrorsGraph(c,num, denominator)
         draw(c, "SKIP", opt=options.drawopt[i])
+        copy_style(num, c)
 
     axis(options.xtit, options.ratiotit)
     one = ROOT.TF1("one", "pol0", options.xrange[1], options.xrange[2])
