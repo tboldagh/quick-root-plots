@@ -1,0 +1,3 @@
+#!/bin/bash
+
+piroot -q $1 content.py

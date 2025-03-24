@@ -42,6 +42,9 @@ def few():
            (ROOT.kBlue, ROOT.kOpenDiamond)]
 
 
+def maxAutoPlots():
+    global attrs
+    return len(attrs)
 
 def polySet(which="default"):
     """Select which set of polymarkers & colors to use"""
@@ -636,3 +639,11 @@ def hline(pos=0, min=None, max=None):
     global _other
     _other.append(line)
 
+def copy_style(src, dest):
+    dest.SetMarkerStyle(src.GetMarkerStyle())
+    dest.SetMarkerSize(src.GetMarkerSize())
+    dest.SetMarkerColor(src.GetMarkerColor())
+    dest.SetFillStyle(src.GetFillStyle())
+    dest.SetFillColor(src.GetFillColor())
+    dest.SetLineWidth(src.GetLineWidth())
+    dest.SetLineColor(src.GetLineColor())
