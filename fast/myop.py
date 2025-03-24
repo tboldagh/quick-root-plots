@@ -1,7 +1,8 @@
 class myop(object):
     __scope=None
     def __init__(self, scope):
-        myop.__scope = scope
+        import copy
+        myop.__scope = copy.copy(scope)
         self.interactive=False
 
     def __repr__(self):
