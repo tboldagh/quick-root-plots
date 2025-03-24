@@ -73,7 +73,7 @@ do
         ;;
         *)
             f=${OPTION}
-            if [[ "$f" =~ .*".py" ]]
+            if [[ "$f" =~ .*".py"  ]]
             then
                 if [ -f "$f" ]
                 then
