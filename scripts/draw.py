@@ -4,7 +4,7 @@ options = myop(globals())
 
 options.help=False
 options.hist="h_FCalET"
-options.drawopt="root: hp" # see: fast.py draw fuction, this option can be a list, this case options are specified for each hist
+options.drawopt="root: hp" # see: fast.py draw function, this option can be a list, this case options are specified for each hist
 options.logx=0
 options.logy=0
 options.logz=0
@@ -31,6 +31,8 @@ options.wscale=None # just width scale
 options.escale=None # events scale
 options.pscale=None # scale to the same number of entries in a given position
 options.ascale=None # arbitrary scale applied to each histogram
+options.iscale=None # scale to the same integral in range given by pair of numbers (1, 2)
+
 options.msg=[] # additional messages
 options.msgpos=(0.6, 0.89)
 options.msgsz=0.03
@@ -162,6 +164,10 @@ if options.escale:
 if options.pscale != None:    
     [ h.Scale(1./h.GetBinContent(h.FindBin( options.pscale ) ), "width") for h in hists  ]
 
+if options.iscale != None:    
+    [ h.Scale(1./h.Integral(h.FindBin( options.iscale[0] ), h.FindBin( options.iscale[1] ) ), "width") for h in hists  ]
+
+
 if options.ascale != None:
     print("... applying scale factors ", options.ascale)
     assert len(options.ascale) == len(hists), "Need the same number of scale factors "+ options.ascale +" as number of hists" + len(hists)
@@ -180,7 +186,7 @@ if not options.xrange:
 
 yr = options.yrange
 if not options.yrange:
-    if "TH1" in hists[0].ClassName():
+    if "TH1" in hists[0].ClassName() or "TProfile" in hists[0].ClassName():
         max_bincount = max(h.GetMaximum() for h in hists)*(10 if bool(options.logy)==True else 1.2)
         min_bincount = min(h.GetMinimum() for h in hists) 
         min_bincount = 10e-4*max_bincount if bool(options.logy)==True else min_bincount
