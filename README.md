@@ -46,9 +46,9 @@ In addition they key can be supplemented by move/resize directives that are:
 * `d` down
 * `l` left 
 * `r` right, 
-* `w` widen 
-* `n` to make object narrower and 
-* `s` shorter
+* `w` widen, 
+* `n` narrow,
+* `s` shorten,
 * `t` taller. 
 Capital move directives move by 3 quants, i.e. LU is the same as llluuu.
 # piroot 
@@ -106,7 +106,7 @@ That is, it will not catch typos for you!
 # Included scripts
 There is couple of "small" scripts included that are ready to be used for making quite a diverse set of plots. First of all `draw.py` can be used to draw same histogram from multiple files, multiple hitograms from one file and nearly all settings of the plot can be customised from command line. See the source code for all the options.
 
-A simpler version, `simple.py` just good for signle histogram an only af few customizations available through command line.  
+A simpler version, `simple.py` just good for single histogram and only a few customizations available through command line.  
 
 A useful script called `content.py` can be used to list content of the ROOT file like this:
 ``sh
@@ -127,17 +127,14 @@ ro.<TAB> << try this
 ro.basic_checks.NChR.Draw("hpe")
 ``
 
+In addition to `piroot` there are small script build on top of it:
 
+`pils` - lists the content of the ROOT file: `pils file.root`
+`pipl` - draws a histogram from the file: `pipl file.root full/path/to/hist`
 
 
 # Installation
 Not really needed, just make the directory where the python scripts reside (i.e. fast part of you PYTHONPATH).
 
-In order to use `piroot` and scripts in `scripts` subdir like `draw.py` one should
-run firs: `source install_dir/quick-root-plots/scripts/thisq.sh`.
-
-
-
-
-# TODO
-* a few more styles (like journal)?
+In order to use `piroot` and scripts in `scripts` subdir like `draw.py` one need to
+run firs this command: `source install_dir/quick-root-plots/scripts/thisq.sh`.

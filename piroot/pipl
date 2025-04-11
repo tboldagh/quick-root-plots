@@ -1,0 +1,3 @@
+#!/bin/bash
+
+piroot $1 simple.py -p "hist='$2'"
