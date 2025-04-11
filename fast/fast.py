@@ -64,7 +64,9 @@ pos = {"tr"  : (0.60, 0.60, 0.92, 0.9),
         "brn" : (0.80, 0.22, 0.92, 0.42),
         "bc" : (0.40, 0.22, 0.72, 0.42),
         "bl" : (0.20, 0.22, 0.52, 0.42),
-        "cc" : (0.45, 0.46, 0.68, 0.68)
+        "cc" : (0.45, 0.46, 0.68, 0.68),
+        "TR" : (0.92, 0.92, 0.92, 0.92),
+        "TL" : (0.22, 0.91, 0.22, 0.91),
 
 }
 
@@ -88,14 +90,14 @@ def moveDirectives(directives, init=(0,0,0,0)):
     }
     pos=init
     for d in directives:
-        assert d in moves, "move directive not known"
+        assert d in moves, f"move directive: {d} not known"
         pos = tuple([ c+m for c,m in zip( pos, moves[d]) ])
     return pos
 
 
 def posKey2Abs(posKey):
     if all( [ k not in posKey for k in pos.keys()] ):
-        raise Exception("No legend position "+str(posKey)+ " there are possible: " +" ".join(list(pos.keys()) ))
+        raise Exception("No position "+str(posKey)+ " there are possible to decode from: " +" ".join(list(pos.keys()) ))
     directives=posKey.split(",")
     coord = pos[directives[0]]
 
@@ -460,6 +462,7 @@ def axis(x, y):
 
 
 def yopen(factor):
+    """Make y axis wider by given factor"""
     ymin = _hists[0].GetMinimum()
     ymax = _hists[0].GetMaximum()
     _hists[0].GetYaxis().SetRangeUser(ymin*(1.-factor), ymax*(1.+factor))
